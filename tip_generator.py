@@ -120,15 +120,17 @@ def generate_file_id() -> str:
     return uuid.uuid4().hex[:8]
 
 
-def save_tip(cat_info: dict, content: str) -> Optional[Path]:
+def save_tip(cat_info: dict, content: Optional[str]) -> Optional[Path]:
     """Save a tip to the appropriate file."""
+    if not content:
+        return None
+
     category_dir = TIPS_DIR / cat_info["name"]
     category_dir.mkdir(parents=True, exist_ok=True)
 
     file_id = generate_file_id()
     file_path = category_dir / f"{file_id}.md"
 
-    # Add metadata if not present
     if not content.startswith("---"):
         content = f"""---
 category: {cat_info["name"]}
@@ -476,7 +478,21 @@ def generate_sync(
                     )
                     continue
 
-                file_path = save_tip(cat_info, tip_data["content"])
+                file_path = save_tip(cat_info, tip_data.get("content"))
+                if not file_path:
+                    print("ERROR: Empty response content, skipping")
+                    log_error(
+                        {
+                            "timestamp": datetime.now().isoformat(),
+                            "category_id": cat_id,
+                            "category_name": cat_info.get("name"),
+                            "tip_number": i + 1,
+                            "provider": provider,
+                            "model": model or get_default_model(provider),
+                            "error": "Empty response content",
+                        }
+                    )
+                    continue
                 print(f"Saved to {file_path.relative_to(SCRIPT_DIR)}")
                 generated += 1
 
@@ -585,9 +601,12 @@ def generate_batch(
                     )
 
                     if cat_info:
-                        file_path = save_tip(cat_info, res["content"])
-                        print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
-                        generated += 1
+                        file_path = save_tip(cat_info, res.get("content"))
+                        if file_path:
+                            print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
+                            generated += 1
+                        else:
+                            print(f"  SKIPPED: Empty content for {custom_id}")
 
                 return generated
 
@@ -626,8 +645,11 @@ def check_batch_status(
                 )
 
                 if cat_info:
-                    file_path = save_tip(cat_info, res["content"])
-                    print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
+                    file_path = save_tip(cat_info, res.get("content"))
+                    if file_path:
+                        print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
+                    else:
+                        print(f"  SKIPPED: Empty content for {custom_id}")
 
     except Exception as e:
         print(f"Error: {e}")
