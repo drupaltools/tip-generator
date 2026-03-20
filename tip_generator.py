@@ -1243,9 +1243,6 @@ def main():
         "--api-key", "-k", type=str, default=None, help="API key (or set in .env)"
     )
     parser.add_argument(
-        "--sync", action="store_true", help="Use synchronous API instead of batch"
-    )
-    parser.add_argument(
         "--no-wait", action="store_true", help="Don't wait for batch completion"
     )
     parser.add_argument(
@@ -1351,12 +1348,7 @@ def main():
             )
             return
 
-    # Auto-enable sync mode for providers that don't support batch API
-    if args.provider in ("openrouter", "anthropic") and not args.sync:
-        args.sync = True
-        print(
-            f"Note: Auto-enabled --sync mode (batch API not supported for {args.provider})"
-        )
+    use_sync = args.provider in ("openrouter", "anthropic")
 
     if args.dry_run:
         print(
@@ -1364,11 +1356,10 @@ def main():
         )
         print(f"Provider: {args.provider}")
         print(f"Model: {args.model or get_default_model(args.provider)}")
-        print(f"Mode: {'sync' if args.sync else 'batch'}")
+        print(f"Mode: {'sync' if use_sync else 'batch'}")
         return
 
-    # Generate
-    if args.sync:
+    if use_sync:
         generated = generate_sync(
             categories, args.count, args.provider, api_key, args.model
         )

@@ -49,9 +49,9 @@ Get a tip from the pre-generated database instantly — no API call needed:
 
 ### Generate Tips
 
-**Using Anthropic (sync mode):**
+**Using Anthropic:**
 ```bash
-.venv/bin/python tip_generator.py -c 35 -n 5 -p anthropic --sync
+.venv/bin/python tip_generator.py -c 35 -n 5 -p anthropic
 ```
 
 **Using OpenAI (batch mode - 50% cheaper):**
@@ -59,9 +59,9 @@ Get a tip from the pre-generated database instantly — no API call needed:
 .venv/bin/python tip_generator.py -c 35 -n 5 -p openai
 ```
 
-**Using OpenRouter (sync mode only):**
+**Using OpenRouter:**
 ```bash
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter --sync
+.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter
 ```
 
 ### Arguments
@@ -72,7 +72,6 @@ Get a tip from the pre-generated database instantly — no API call needed:
 | `-n, --count` | Number of tips per category (default: 5) |
 | `-p, --provider` | LLM provider: `anthropic`, `openai`, `openrouter` |
 | `-m, --model` | Override default model |
-| `--sync` | Use synchronous API (required for OpenRouter) |
 | `--no-wait` | Don't wait for batch completion |
 | `--dry-run` | Show what would be done without calling API |
 | `--list-categories` | List all available categories |
@@ -88,25 +87,25 @@ Get a tip from the pre-generated database instantly — no API call needed:
 
 ```bash
 # Generate 3 tips for category 35 (core-service)
-.venv/bin/python tip_generator.py -c 35 -n 3 -p openrouter --sync
+.venv/bin/python tip_generator.py -c 35 -n 3 -p openrouter
 
 # Generate 5 tips for multiple categories
-.venv/bin/python tip_generator.py -c 35,36,37 -n 5 -p openrouter --sync
+.venv/bin/python tip_generator.py -c 35,36,37 -n 5 -p openrouter
 
 # Generate 1 tip for ALL categories
-.venv/bin/python tip_generator.py -c all -n 1 -p openrouter --sync
+.venv/bin/python tip_generator.py -c all -n 1 -p openrouter
 
 # Use a specific model
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4 --sync
+.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4
 ```
 
 ## Batch API Notes
 
 | Provider | Batch Support | Discount | Notes |
 |----------|---------------|----------|-------|
-| Anthropic | ⚠️ Unstable | 50% | Batch API may return 404 - use `--sync` mode |
-| OpenAI | Yes | 50% | Results within 24h (uses `max_completion_tokens`) |
-| OpenRouter | No | - | Use `--sync` flag |
+| Anthropic | ⚠️ Sync only | - | Batch API may return 404 |
+| OpenAI | Yes | 50% | Results within 24h |
+| OpenRouter | ⚠️ Sync only | - | Batch API not supported |
 
 ## Check Batch Status
 
@@ -164,7 +163,7 @@ To add or modify categories, edit `config.json` directly - no code changes neede
 
 ```bash
 # Dry run to verify configuration
-.venv/bin/python tip_generator.py -c 35 -n 1 -p openrouter --sync --dry-run
+.venv/bin/python tip_generator.py -c 35 -n 1 -p openrouter --dry-run
 ```
 
 ## Validation
