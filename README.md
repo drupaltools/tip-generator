@@ -188,6 +188,23 @@ Validate generated tips for formatting issues, truncation, and quality:
 - **Quality**: Generic openings, placeholder text, excessive code ratio
 - **Fake Content**: Non-existent Drupal APIs, hallucinated functions, wrong service names
 
+## Web Viewer
+
+A simple web UI to browse tips:
+
+```bash
+pip install flask
+python tip_viewer.py                    # http://localhost:5000
+python tip_viewer.py --port 8080       # Custom port
+python tip_viewer.py --host 0.0.0.0     # Public access
+python tip_viewer.py --debug            # Debug mode
+```
+
+Features:
+- Filter tips by category
+- Get random tip with one click
+- View all tips or browse by category
+
 ## File Structure
 
 ```
@@ -197,6 +214,8 @@ drupal-tip/
 ├── .venv/            # Python virtual environment
 ├── config.json       # Categories and prompt template
 ├── tip_generator.py  # Main generator script
+├── tip_viewer.py     # Web UI for browsing tips
+├── templates/        # HTML templates for web UI
 ├── SKILL.md          # Skill definition for Claude Code
 ├── README.md         # This file
 └── tips/             # Generated tip files
