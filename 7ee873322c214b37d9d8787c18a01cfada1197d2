@@ -1,0 +1,27 @@
+.gitignore
+  b5955d1a68370b25 1-19
+example.config.json
+  b5955d1a68370b25 1-87
+tip_generator.py
+  b5955d1a68370b25 32-36,50-53,56-58,244-245,274-275,335-336,534,536,561,563,566-570
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "7ee873322c214b37d9d8787c18a01cfada1197d2",
+  "prompts": {
+    "b5955d1a68370b25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44d4b9bd-cf63-4184-89fb-c22c01ebec9a",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 140,
+      "total_deletions": 20,
+      "accepted_lines": 133,
+      "overriden_lines": 0
+    }
+  }
+}
