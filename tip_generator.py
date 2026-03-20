@@ -142,7 +142,7 @@ def anthropic_batch_create(requests: List[dict], api_key: str) -> str:
             "custom_id": req.get("custom_id", str(uuid.uuid4())),
             "params": {
                 "model": req.get("model", get_default_model("anthropic")),
-                "max_tokens": 1024,
+                "max_tokens": 2048,
                 "messages": [
                     {"role": "user", "content": req["prompt"]}
                 ]
@@ -188,7 +188,7 @@ def openai_batch_create(requests: List[dict], api_key: str, model: str = None) -
             "url": "/v1/chat/completions",
             "body": {
                 "model": model,
-                "max_completion_tokens": 1024,
+                "max_completion_tokens": 2048,
                 "messages": [
                     {"role": "user", "content": req["prompt"]}
                 ]
@@ -290,7 +290,7 @@ def openrouter_batch_create(requests: List[dict], api_key: str, model: str = Non
             "url": "/v1/chat/completions",
             "body": {
                 "model": model,
-                "max_completion_tokens": 1024,
+                "max_completion_tokens": 2048,
                 "messages": [
                     {"role": "user", "content": req["prompt"]}
                 ]
@@ -319,20 +319,26 @@ def call_anthropic_sync(prompt: str, api_key: str, model: str = None) -> dict:
     client = anthropic.Anthropic(api_key=api_key)
     message = client.messages.create(
         model=model or get_default_model("anthropic"),
-        max_tokens=1024,
+        max_tokens=2048,
         messages=[{"role": "user", "content": prompt}]
     )
-    return {"content": message.content[0].text}
+    return {
+        "content": message.content[0].text,
+        "finish_reason": message.stop_reason  # "end_turn" or "max_tokens"
+    }
 
 def call_openai_sync(prompt: str, api_key: str, model: str = None) -> dict:
     """Call OpenAI API synchronously."""
     client = OpenAI(api_key=api_key)
     response = client.chat.completions.create(
         model=model or get_default_model("openai"),
-        max_completion_tokens=1024,
+        max_completion_tokens=2048,
         messages=[{"role": "user", "content": prompt}]
     )
-    return {"content": response.choices[0].message.content}
+    return {
+        "content": response.choices[0].message.content,
+        "finish_reason": response.choices[0].finish_reason  # "stop" or "length"
+    }
 
 def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
     """Call OpenRouter API synchronously."""
@@ -347,10 +353,13 @@ def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
     )
     response = client.chat.completions.create(
         model=model or get_default_model("openrouter"),
-        max_completion_tokens=1024,
+        max_completion_tokens=2048,
         messages=[{"role": "user", "content": prompt}]
     )
-    return {"content": response.choices[0].message.content}
+    return {
+        "content": response.choices[0].message.content,
+        "finish_reason": response.choices[0].finish_reason  # "stop" or "length"
+    }
 
 # ============ GENERATION FUNCTIONS ============
 
@@ -374,20 +383,21 @@ def log_error(error_data: dict) -> None:
 def generate_sync(categories: List[int], count: int, provider: str, api_key: str, model: Optional[str]) -> int:
     """Generate tips synchronously (one at a time)."""
     generated = 0
-    
+    truncated = 0
+
     for cat_id in categories:
         if cat_id not in CATEGORIES:
             print(f"Warning: Category {cat_id} not found, skipping")
             continue
-        
+
         cat_info = CATEGORIES[cat_id]
         print(f"\nCategory {cat_id}: {cat_info['desc']}")
-        
+
         for i in range(count):
             prompt = get_prompt_for_category(cat_id, cat_info)
-            
+
             print(f"  Generating tip {i+1}/{count}...", end=" ", flush=True)
-            
+
             try:
                 if provider == "anthropic":
                     tip_data = call_anthropic_sync(prompt, api_key, model or get_default_model("anthropic"))
@@ -397,11 +407,28 @@ def generate_sync(categories: List[int], count: int, provider: str, api_key: str
                     tip_data = call_openrouter_sync(prompt, api_key, model or get_default_model("openrouter"))
                 else:
                     raise ValueError(f"Unknown provider: {provider}")
-                
+
+                # Check for truncation
+                finish_reason = tip_data.get("finish_reason", "unknown")
+                if finish_reason in ("length", "max_tokens"):
+                    print(f"TRUNCATED ({finish_reason})")
+                    truncated += 1
+                    log_error({
+                        "timestamp": datetime.now().isoformat(),
+                        "category_id": cat_id,
+                        "category_name": cat_info.get('name'),
+                        "tip_number": i + 1,
+                        "provider": provider,
+                        "model": model or get_default_model(provider),
+                        "error": f"Response truncated (finish_reason: {finish_reason})",
+                        "content": tip_data.get("content", "")[:500]  # First 500 chars for debugging
+                    })
+                    continue
+
                 file_path = save_tip(cat_info, tip_data["content"])
                 print(f"Saved to {file_path.relative_to(SCRIPT_DIR)}")
                 generated += 1
-                
+
             except Exception as e:
                 print(f"Error: {e}")
                 log_error({
@@ -413,7 +440,10 @@ def generate_sync(categories: List[int], count: int, provider: str, api_key: str
                     "model": model or get_default_model(provider),
                     "error": str(e)
                 })
-    
+
+    if truncated > 0:
+        print(f"\nWarning: {truncated} tips were truncated and not saved (see errors.json)")
+
     return generated
 
 def generate_batch(categories: List[int], count: int, provider: str, api_key: str, model: Optional[str], wait: bool = True) -> int:
