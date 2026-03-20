@@ -1,0 +1,257 @@
+/* ==========================================================================
+   Drupal Tip Viewer - Stylesheet
+   Edit colors and spacing in :root below, or modify individual sections.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design Tokens - Change these to retheme the whole UI
+   -------------------------------------------------------------------------- */
+:root {
+    /* Backgrounds */
+    --bg-primary: #1a1a2e;
+    --bg-card: #16213e;
+    --bg-code: #0f0f23;
+
+    /* Accent color (buttons, links, highlights) */
+    --accent: #00d4ff;
+    --accent-hover: #00b8e6;
+
+    /* Text colors */
+    --text-primary: #eee;
+    --text-secondary: #ccc;
+    --text-muted: #666;
+    --btn-bg: #49496f;
+
+    /* Borders & Radius */
+    --border-subtle: #444;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-pill: 20px;
+}
+
+
+/* --------------------------------------------------------------------------
+   Reset & Base
+   -------------------------------------------------------------------------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Header
+   -------------------------------------------------------------------------- */
+header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h1 {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    color: var(--text-muted);
+}
+
+
+/* --------------------------------------------------------------------------
+   Controls (dropdown + buttons)
+   -------------------------------------------------------------------------- */
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+select,
+button {
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-md);
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+select {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    min-width: 200px;
+}
+
+button {
+    background: var(--accent);
+    color: var(--bg-primary);
+    font-weight: 600;
+    transition: transform 0.1s, background 0.2s;
+}
+
+button:hover {
+    background: var(--accent-hover);
+    transform: scale(1.02);
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+
+/* --------------------------------------------------------------------------
+   Tip Card
+   -------------------------------------------------------------------------- */
+.tip-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--accent);
+}
+
+.tip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.tip-category {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.tip-title {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+
+/* --------------------------------------------------------------------------
+   Tip Meta (UUID + IDE buttons)
+   -------------------------------------------------------------------------- */
+.tip-uuid {
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-family: monospace;
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ide-btn {
+    background: var(--btn-bg);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+}
+
+.ide-btn:hover,
+.ide-btn:focus,
+.ide-btn:focus-visible {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    border-color: var(--accent);
+    color: var(--text-primary);
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.ide-btn:active {
+    transform: scale(0.95);
+}
+
+
+/* --------------------------------------------------------------------------
+   Tip Content (rendered markdown)
+   -------------------------------------------------------------------------- */
+.tip-content {
+    line-height: 1.7;
+    color: var(--text-secondary);
+}
+
+.tip-content p {
+    margin-bottom: 1rem;
+}
+
+.tip-content pre {
+    background: var(--bg-code);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.tip-content code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9rem;
+}
+
+.tip-content pre code {
+    display: block;
+}
+
+/* Inline code (not inside pre) */
+.tip-content :not(pre) > code {
+    background: var(--bg-code);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+}
+
+
+/* --------------------------------------------------------------------------
+   Status Messages
+   -------------------------------------------------------------------------- */
+.stats {
+    text-align: center;
+    color: var(--text-muted);
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+.loading {
+    text-align: center;
+    color: var(--accent);
+    font-size: 1.2rem;
+    padding: 2rem;
+}
+
+.empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 2rem;
+}

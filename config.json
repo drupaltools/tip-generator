@@ -11,7 +11,7 @@
     "8": {"name": "rare-drush-command", "live_fetch": false, "desc": "Rare or underused Drush command"},
     "9": {"name": "rare-ddev-command", "live_fetch": false, "desc": "Rare or underused DDEV command"},
     "10": {"name": "composer-trick", "live_fetch": false, "desc": "Rare Composer command or config trick"},
-    "11": {"name": "useful-composer-package", "live_fetch": false, "desc": "Useful Composer package for Drupal"},
+    "11": {"name": "useful-composer-package", "live_fetch": false, "desc": "Useful Composer package for Drupal and PHP development and automation"},
     "12": {"name": "drupal-vs-cms", "live_fetch": false, "desc": "Drupal vs another CMS/tool comparison"},
     "13": {"name": "code-example", "live_fetch": false, "desc": "Interesting Drupal code example"},
     "14": {"name": "upcoming-event", "live_fetch": true, "desc": "Upcoming Drupal event"},

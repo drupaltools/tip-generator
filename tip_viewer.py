@@ -20,7 +20,9 @@ from flask import Flask, render_template, jsonify, request
 SCRIPT_DIR = Path(__file__).parent
 TIPS_DIR = SCRIPT_DIR / "tips"
 
-app = Flask(__name__)
+app = Flask(
+    __name__, static_folder=str(SCRIPT_DIR / "static"), static_url_path="/static"
+)
 
 
 def parse_tip_file(file_path: Path) -> Dict[str, Any]:
@@ -54,6 +56,8 @@ def parse_tip_file(file_path: Path) -> Dict[str, Any]:
 
     return {
         "file": file_path.name,
+        "uuid": file_path.stem,
+        "path": str(file_path),
         "category": frontmatter.get("category", file_path.parent.name),
         "title": frontmatter.get("title", ""),
         "generated": frontmatter.get("generated", ""),
