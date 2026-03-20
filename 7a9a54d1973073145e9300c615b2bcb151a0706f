@@ -1,0 +1,23 @@
+README.md
+  b5955d1a68370b25 24,27-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "7a9a54d1973073145e9300c615b2bcb151a0706f",
+  "prompts": {
+    "b5955d1a68370b25": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "44d4b9bd-cf63-4184-89fb-c22c01ebec9a",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 13,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
