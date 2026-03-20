@@ -1,0 +1,36 @@
+tip_viewer.py
+  5c5f7c6e580327b0 158,162-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "a1baa229a77963f75a9571f70e8e82aafc0f0eac",
+  "prompts": {
+    "1d7320dc948ea845": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-b1c3d69b-c0f4-41b9-b40f-2eae668bf2b4",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 1,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "5c5f7c6e580327b0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-82ca5364-0e0d-41e0-b345-2c72bc1c8229",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 5,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
