@@ -1,6 +1,9 @@
 # Environment variables (contains API keys)
 .env
 
+# Error log
+errors.json
+
 # Generated tips (can be regenerated)
 tips/
 

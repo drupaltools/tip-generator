@@ -96,13 +96,11 @@ TIPS_DIR = SCRIPT_DIR / "tips"
 def get_prompt_for_category(cat_id: int, cat_info: dict) -> str:
     """Generate a prompt for a specific category using the template from config."""
     template = CONFIG.get("prompt_template", "")
-    code_lang = CONFIG.get("code_language", "php")
 
     return template.format(
         cat_id=cat_id,
         cat_desc=cat_info['desc'],
-        cat_name=cat_info['name'],
-        code_lang=code_lang
+        cat_name=cat_info['name']
     )
 
 def generate_file_id() -> str:
@@ -356,6 +354,23 @@ def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
 
 # ============ GENERATION FUNCTIONS ============
 
+ERROR_LOG_FILE = SCRIPT_DIR / "errors.json"
+
+def log_error(error_data: dict) -> None:
+    """Log an error to the errors.json file."""
+    errors = []
+    if ERROR_LOG_FILE.exists():
+        try:
+            with open(ERROR_LOG_FILE) as f:
+                errors = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            errors = []
+
+    errors.append(error_data)
+
+    with open(ERROR_LOG_FILE, 'w') as f:
+        json.dump(errors, f, indent=2)
+
 def generate_sync(categories: List[int], count: int, provider: str, api_key: str, model: Optional[str]) -> int:
     """Generate tips synchronously (one at a time)."""
     generated = 0
@@ -389,6 +404,15 @@ def generate_sync(categories: List[int], count: int, provider: str, api_key: str
                 
             except Exception as e:
                 print(f"Error: {e}")
+                log_error({
+                    "timestamp": datetime.now().isoformat(),
+                    "category_id": cat_id,
+                    "category_name": cat_info.get('name'),
+                    "tip_number": i + 1,
+                    "provider": provider,
+                    "model": model or get_default_model(provider),
+                    "error": str(e)
+                })
     
     return generated
 
