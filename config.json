@@ -4,7 +4,7 @@
     "1": {"name": "proposed-new-module", "live_fetch": true, "desc": "Proposed new module on drupal.org"},
     "2": {"name": "drupal-history", "live_fetch": true, "desc": "Drupal history from https://raw.githubusercontent.com/weitzman/drupal-timeline/refs/heads/main/drupal-timeline.json or https://en.wikipedia.org/wiki/Drupal or very old versions"},
     "3": {"name": "notable-issue-commit", "live_fetch": false, "desc": "Notable Drupal.org issue or commit"},
-    "4": {"name": "drupal-statistics", "live_fetch": false, "desc": "Drupal statistics"},
+    "4": {"name": "drupal-statistics", "live_fetch": true, "desc": "Interesting statistics about Drupal usage, websites using, installation counts, code lines, commits per month, people on the community etc"},
     "5": {"name": "obsolete-module", "live_fetch": false, "desc": "Obsolete but once-popular Drupal module"},
     "6": {"name": "high-issue-count-module", "live_fetch": true, "desc": "Module with unusually high issue count"},
     "7": {"name": "old-maintained-module", "live_fetch": true, "desc": "Very old but still actively maintained module"},

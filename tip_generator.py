@@ -161,7 +161,7 @@ def anthropic_batch_create(requests: List[dict], api_key: str) -> str:
             {
                 "custom_id": req.get("custom_id", str(uuid.uuid4())),
                 "params": {
-                    "model": req.get("model", get_default_model("anthropic")),
+                    "model": req.get("model") or get_default_model("anthropic"),
                     "max_tokens": 2048,
                     "messages": [{"role": "user", "content": req["prompt"]}],
                 },
