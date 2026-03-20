@@ -103,7 +103,7 @@ Get a tip from the pre-generated database instantly — no API call needed:
 
 | Provider | Batch Support | Discount | Notes |
 |----------|---------------|----------|-------|
-| Anthropic | ⚠️ Sync only | - | Batch API may return 404 |
+| Anthropic | Yes | 50% | Uses `message-batches-2024-09-24` beta |
 | OpenAI | Yes | 50% | Results within 24h |
 | OpenRouter | ⚠️ Sync only | - | Batch API not supported |
 

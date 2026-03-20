@@ -150,9 +150,11 @@ generated: {datetime.now().isoformat()}
 
 def anthropic_batch_create(requests: List[dict], api_key: str) -> str:
     """Create an Anthropic batch and return the batch ID."""
-    client = anthropic.Anthropic(api_key=api_key)
+    client = anthropic.Anthropic(
+        api_key=api_key,
+        default_headers={"anthropic-beta": "message-batches-2024-09-24"},
+    )
 
-    # Build message batch requests
     batch_requests = []
     for req in requests:
         batch_requests.append(
@@ -1378,7 +1380,7 @@ def main():
             )
             return
 
-    use_sync = args.provider in ("openrouter", "anthropic")
+    use_sync = args.provider == "openrouter"
 
     if args.dry_run:
         print(
