@@ -242,7 +242,11 @@ def openrouter_batch_check(batch_id: str, api_key: str) -> dict:
     client = OpenAI(
         api_key=api_key,
         base_url="https://openrouter.ai/api/v1",
-        default_headers={"X-Title": "tip_generator"}
+        default_headers={
+            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "X-OpenRouter-Title": "Drupal Tip Generator",
+            "X-OpenRouter-Categories": "cli-agent",
+        }
     )
     batch = client.batches.retrieve(batch_id)
 
@@ -272,7 +276,11 @@ def openrouter_batch_create(requests: List[dict], api_key: str, model: str = Non
     client = OpenAI(
         api_key=api_key,
         base_url="https://openrouter.ai/api/v1",
-        default_headers={"X-Title": "tip_generator"}
+        default_headers={
+            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "X-OpenRouter-Title": "Drupal Tip Generator",
+            "X-OpenRouter-Categories": "cli-agent",
+        }
     )
 
     # Create JSONL file content
@@ -333,7 +341,11 @@ def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
     client = OpenAI(
         api_key=api_key,
         base_url="https://openrouter.ai/api/v1",
-        default_headers={"X-Title": "tip_generator"}
+        default_headers={
+            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "X-OpenRouter-Title": "Drupal Tip Generator",
+            "X-OpenRouter-Categories": "cli-agent",
+        }
     )
     response = client.chat.completions.create(
         model=model or get_default_model("openrouter"),
