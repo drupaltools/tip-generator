@@ -245,14 +245,23 @@ def openai_batch_check(batch_id: str, api_key: str) -> dict:
         "status": batch.status,
         "complete": batch.status in ["completed", "failed", "expired"],
         "results": [],
+        "errors": [],
     }
 
+    if batch.status == "failed":
+        result["error"] = (
+            getattr(batch, "error", None) or f"Batch failed with status: {batch.status}"
+        )
+        result["errors"] = getattr(batch, "errors", []) or []
+
     if batch.status == "completed" and batch.output_file_id:
-        # Get results
         file_content = client.files.content(batch.output_file_id)
         for line in file_content.text.strip().split("\n"):
+            if not line:
+                continue
             data = json.loads(line)
-            if data.get("response", {}).get("status_code") == 200:
+            response_status = data.get("response", {}).get("status_code")
+            if response_status == 200:
                 body = data["response"]["body"]
                 result["results"].append(
                     {
@@ -260,6 +269,9 @@ def openai_batch_check(batch_id: str, api_key: str) -> dict:
                         "content": body["choices"][0]["message"]["content"],
                     }
                 )
+            else:
+                error_msg = f"{data.get('custom_id', 'unknown')}: {data.get('response', {}).get('body', {}).get('error', {}).get('message', 'Unknown error')}"
+                result["errors"].append(error_msg)
 
     return result
 
@@ -589,14 +601,42 @@ def generate_batch(
             print(f"  Status: {result['status']}")
 
             if result["complete"]:
+                if result["status"] in ("failed", "expired"):
+                    error_msg = f"Batch {result['status']}: {result.get('error', 'Unknown error')}"
+                    print(f"\nERROR: {error_msg}")
+                    log_error(
+                        {
+                            "timestamp": datetime.now().isoformat(),
+                            "batch_id": batch_id,
+                            "provider": provider,
+                            "error": error_msg,
+                            "type": "batch_failed",
+                        }
+                    )
+                    return 0
+
                 print(
                     f"\nBatch complete! Processing {len(result['results'])} results..."
                 )
 
+                if result.get("errors"):
+                    print(f"\n{len(result['errors'])} request(s) failed:")
+                    for err in result["errors"]:
+                        print(f"  - {err}")
+                    log_error(
+                        {
+                            "timestamp": datetime.now().isoformat(),
+                            "batch_id": batch_id,
+                            "provider": provider,
+                            "error": "Individual request failures",
+                            "errors": result["errors"],
+                            "type": "batch_partial_failure",
+                        }
+                    )
+
                 generated = 0
                 for res in result["results"]:
                     custom_id = res["custom_id"]
-                    # Extract category name from custom_id
                     cat_name = custom_id.rsplit("_", 1)[0]
                     cat_info = next(
                         (c for c in CATEGORIES.values() if c["name"] == cat_name), None

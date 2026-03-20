@@ -2,7 +2,7 @@
   "prompt_template": "Generate a Drupal tip for category #{cat_id}: {cat_desc}\n\nRequirements:\n- One paragraph maximum (2-4 sentences)\n- Factual, specific, and useful for an experienced Drupal developer\n- No padding or filler\n- Prefer Drupal 11 / PHP 8.4+ idioms for code examples\n- If the tip involves code, include it in a code block with appropriate syntax highlighting (php, bash, sql, yaml, twig, json, etc. based on context)\n\nOutput format:\n---\ncategory: {cat_name}\ntitle: [Short descriptive title]\n---\n\n[The tip paragraph here]\n\n```\n[Code example if relevant - choose appropriate language: php/bash/sql/yaml/twig/json]\n```\n\nGenerate ONE tip now.",
   "categories": {
     "1": {"name": "proposed-new-module", "live_fetch": true, "desc": "Proposed new module on drupal.org"},
-    "2": {"name": "drupal-history", "live_fetch": false, "desc": "Drupal history or old versions"},
+    "2": {"name": "drupal-history", "live_fetch": true, "desc": "Drupal history from https://raw.githubusercontent.com/weitzman/drupal-timeline/refs/heads/main/drupal-timeline.json or https://en.wikipedia.org/wiki/Drupal or very old versions"},
     "3": {"name": "notable-issue-commit", "live_fetch": false, "desc": "Notable Drupal.org issue or commit"},
     "4": {"name": "drupal-statistics", "live_fetch": false, "desc": "Drupal statistics"},
     "5": {"name": "obsolete-module", "live_fetch": false, "desc": "Obsolete but once-popular Drupal module"},
