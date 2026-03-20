@@ -4,7 +4,7 @@ Drupal Tip Viewer - Web UI to browse and display tips.
 
 Usage:
     python tip_viewer.py                    # Start web server (default: http://localhost:5000)
-    python tip_viewer.py --port 8080       # Custom port
+    python tip_viewer.py --port 8080        # Custom port
     python tip_viewer.py --tips-dir ./tips  # Custom tips directory
 """
 
@@ -155,13 +155,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Drupal Tip Viewer Web UI")
     parser.add_argument("--port", type=int, default=5000, help="Port to run on")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
-    parser.add_argument(
-        "--tips-dir", type=Path, default=TIPS_DIR, help="Tips directory"
-    )
+    parser.add_argument("--tips-dir", type=str, default=None, help="Tips directory")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     args = parser.parse_args()
 
-    global TIPS_DIR
-    TIPS_DIR = args.tips_dir
+    if args.tips_dir:
+        TIPS_DIR = Path(args.tips_dir)
 
     app.run(host=args.host, port=args.port, debug=args.debug)

@@ -195,7 +195,7 @@ A simple web UI to browse tips:
 ```bash
 pip install flask
 python tip_viewer.py                    # http://localhost:5000
-python tip_viewer.py --port 8080       # Custom port
+python tip_viewer.py --port 8080        # Custom port
 python tip_viewer.py --host 0.0.0.0     # Public access
 python tip_viewer.py --debug            # Debug mode
 ```
