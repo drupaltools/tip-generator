@@ -31,6 +31,16 @@ TIPGEN_OPENROUTER_API_KEY=sk-or-...
 
 ## Usage
 
+### Get a Random Existing Tip (FAST!)
+
+Get a tip from the pre-generated database instantly — no API call needed:
+
+```bash
+.venv/bin/python tip_generator.py --random-tip
+.venv/bin/python tip_generator.py --random-tip --tip-category core-service
+.venv/bin/python tip_generator.py --list-existing
+```
+
 ### List Available Categories
 
 ```bash
@@ -66,6 +76,13 @@ TIPGEN_OPENROUTER_API_KEY=sk-or-...
 | `--no-wait` | Don't wait for batch completion |
 | `--dry-run` | Show what would be done without calling API |
 | `--list-categories` | List all available categories |
+| `--random-tip` | Get a random existing tip (fast, no API) |
+| `--list-existing` | List categories with existing tips |
+| `--tip-category` | Filter random tip by category name |
+| `--validate` | Enable validation mode |
+| `--validate-file` | Validate a specific tip file |
+| `--validate-category` | Validate all tips in a category |
+| `--validate-all` | Validate all tips across all categories |
 
 ### Examples
 
@@ -149,6 +166,28 @@ To add or modify categories, edit `config.json` directly - no code changes neede
 # Dry run to verify configuration
 .venv/bin/python tip_generator.py -c 35 -n 1 -p openrouter --sync --dry-run
 ```
+
+## Validation
+
+Validate generated tips for formatting issues, truncation, and quality:
+
+```bash
+# Validate a single file
+.venv/bin/python tip_generator.py --validate --validate-file tips/core-service/a1b2c3d4.md
+
+# Validate all tips in a category
+.venv/bin/python tip_generator.py --validate --validate-category core-service
+
+# Validate ALL tips across all categories
+.venv/bin/python tip_generator.py --validate --validate-all
+```
+
+### Validation Checks
+
+- **Formatting**: Frontmatter structure, code block balance, line counts
+- **Completeness**: Truncation patterns (trailing `...`, `[TODO]`, incomplete code blocks)
+- **Quality**: Generic openings, placeholder text, excessive code ratio
+- **Fake Content**: Non-existent Drupal APIs, hallucinated functions, wrong service names
 
 ## File Structure
 
