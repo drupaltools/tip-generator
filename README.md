@@ -21,12 +21,12 @@ Copy the example environment file and add your keys:
 cp .env.example .env
 ```
 
-Edit `.env` with your API keys:
+Edit `.env` with your API keys (use `TIPGEN_` prefix):
 
 ```env
-ANTHROPIC_API_KEY=sk-ant-...
-OPENAI_API_KEY=sk-...
-OPENROUTER_API_KEY=sk-or-...
+TIPGEN_ANTHROPIC_API_KEY=sk-ant-...
+TIPGEN_OPENAI_API_KEY=sk-...
+TIPGEN_OPENROUTER_API_KEY=sk-or-...
 ```
 
 ## Usage
@@ -150,15 +150,7 @@ To add or modify categories, edit `config.json` directly - no code changes neede
 .venv/bin/python tip_generator.py -c 35 -n 1 -p openrouter --sync --dry-run
 ```
 
-## Troubleshooting
-
-### "No API key" error but .env file exists
-
-If your shell environment has an empty variable set (e.g., `ANTHROPIC_API_KEY=`), the `.env` loader will skip it. Either:
-- Unset the empty variable: `unset ANTHROPIC_API_KEY`
-- Or ensure your `.env` file has the correct value
-
-### File Structure
+## File Structure
 
 ```
 drupal-tip/
