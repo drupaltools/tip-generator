@@ -53,9 +53,9 @@ def get_env(key: str, default: str = None) -> Optional[str]:
 
 # Default models per provider (can be overridden in .env)
 DEFAULT_MODELS = {
-    "anthropic": get_env("ANTHROPIC_MODEL", "claude-sonnet-4-20250514"),
+    "anthropic": get_env("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
     "openai": get_env("OPENAI_MODEL", "gpt-5.4-mini"),
-    "openrouter": get_env("OPENROUTER_MODEL", "anthropic/claude-sonnet-4"),
+    "openrouter": get_env("OPENROUTER_MODEL", "openai/gpt-5.1-codex-mini"),
 }
 
 def get_default_model(provider: str) -> str:
