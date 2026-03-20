@@ -1,0 +1,65 @@
+tip_generator.py
+  163e78a6447245ac 123,125-127
+  a358b2bb081f0b11 481-495
+  066be235c21c2315 604-605,608-609
+  5ee12abe18420092 648-652
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "2f5d50d78d4bd78af61118df015eeeb1b1b6dba3",
+  "prompts": {
+    "066be235c21c2315": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-67f3aa42-36dd-4bc0-aa5f-e1658ce93cde",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 6,
+      "total_deletions": 3,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    },
+    "163e78a6447245ac": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-201bb067-2dd8-490b-84c8-a6790cf5479e",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 2,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    },
+    "5ee12abe18420092": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-7a6f3db6-9664-443c-8d61-42e6d2ebcf9b",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 2,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    },
+    "a358b2bb081f0b11": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-27f455ab-6a1f-4e56-81fd-ee2f511d9f89",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 15,
+      "total_deletions": 1,
+      "accepted_lines": 15,
+      "overriden_lines": 0
+    }
+  }
+}
