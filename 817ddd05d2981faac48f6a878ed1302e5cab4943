@@ -1,0 +1,78 @@
+tip_generator.py
+  e63ce6f0368b727f 1351,1359,1362
+README.md
+  91c659c13bafee21 106,108
+  b9cc30db448b76f2 166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "817ddd05d2981faac48f6a878ed1302e5cab4943",
+  "prompts": {
+    "5f868abea25f7dfe": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-39efd429-3a3e-41ed-b949-45c9767c13bf",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 3,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "91c659c13bafee21": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-7d734357-bd2f-4363-8e94-5e23c8f78d64",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 7,
+      "total_deletions": 7,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    },
+    "b9cc30db448b76f2": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-0b9f271a-5052-497d-92f0-cf1f63401fa9",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "be5d99b40dfe5cfc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-f1d420d4-bb8b-41a5-b63d-c1466cb93f10",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "e63ce6f0368b727f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-b1b419c0-e994-4c9a-9d42-cdd0dcc5e64e",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 9,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
