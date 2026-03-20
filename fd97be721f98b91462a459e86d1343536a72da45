@@ -1,0 +1,52 @@
+tip_generator.py
+  81946e885530ae9e 154-155
+  08644f655a7c7f5b 1383
+README.md
+  d42edcbc22bb5d90 106
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "fd97be721f98b91462a459e86d1343536a72da45",
+  "prompts": {
+    "08644f655a7c7f5b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-04ea398e-05b9-4e34-a302-af04cb231e4f",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "81946e885530ae9e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-8a8bea77-55f6-4efc-a2e7-3d4047485a98",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    },
+    "d42edcbc22bb5d90": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-d8270a23-b5fe-49f0-a3ee-9ace145e67a5",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
