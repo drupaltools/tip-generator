@@ -1,0 +1,38 @@
+tip_generator.py
+  3d99f2ff51ab1e5e 164
+config.json
+  983341882c9520c2 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.15",
+  "base_commit_sha": "413d4b9af750ea82871a6a2a32dc2b83082dae58",
+  "prompts": {
+    "3d99f2ff51ab1e5e": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-420668df-8784-48d7-b092-97e4bd801258",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "983341882c9520c2": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019d0bd1-e186-7243-b661-713112e5a969",
+        "model": "gpt-5.4"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
