@@ -700,29 +700,37 @@ def print_random_tip(category: Optional[str] = None) -> bool:
         return False
 
     if category:
-        # Filter by specific category
         cat_dir = TIPS_DIR / category
         if not cat_dir.exists():
-            print(f"Category '{category}' not found. Available categories:")
+            print(f"Category '{category}' not found in tips database.")
+            print(f"\nTo add tips for this category:")
+            print(
+                f"  1. Check if it exists in config.json: python tip_generator.py --list-categories"
+            )
+            print(
+                f"  2. Generate tips: python tip_generator.py -c <category-id> -n 5 -p openrouter"
+            )
+            print(f"\nExisting categories:")
             list_existing_categories()
             return False
         files = list(cat_dir.glob("*.md"))
+        if not files:
+            print(f"Category '{category}' exists but has no tips yet.")
+            print(f"Generate tips: python tip_generator.py -c <id> -n 5 -p openrouter")
+            return False
     else:
         files = get_all_tip_files()
-
-    if not files:
-        print("No tips found. Generate tips first with --category.")
-        return False
+        if not files:
+            print("No tips found in database.")
+            return False
 
     import random
 
     tip_file = random.choice(files)
 
-    # Print the tip content directly (not wrapped in code block)
     with open(tip_file) as f:
         content = f.read()
 
-    # Strip frontmatter if present
     if content.startswith("---"):
         parts = content.split("---", 2)
         if len(parts) >= 3:
