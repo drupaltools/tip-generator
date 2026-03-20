@@ -1,0 +1,19 @@
+# Environment variables (contains API keys)
+.env
+
+# Generated tips (can be regenerated)
+tips/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
