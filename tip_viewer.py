@@ -130,7 +130,19 @@ def get_random_tip(category: Optional[str] = None) -> Optional[Dict[str, Any]]:
 def index():
     categories = get_categories()
     total_tips = sum(c["count"] for c in categories)
-    return render_template("index.html", categories=categories, total_tips=total_tips)
+    return render_template(
+        "index.html",
+        categories=categories,
+        total_tips=total_tips,
+        tips_dir=str(TIPS_DIR),
+    )
+
+
+@app.route("/about")
+def about():
+    categories = get_categories()
+    total_tips = sum(c["count"] for c in categories)
+    return render_template("about.html", categories=categories, total_tips=total_tips)
 
 
 @app.route("/api/tips")

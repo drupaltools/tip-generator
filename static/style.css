@@ -6,24 +6,34 @@
 /* --------------------------------------------------------------------------
    Design Tokens - Change these to retheme the whole UI
    -------------------------------------------------------------------------- */
-:root {
-    /* Backgrounds */
+:root,
+[data-theme="dark"] {
     --bg-primary: #1a1a2e;
     --bg-card: #16213e;
     --bg-code: #0f0f23;
-
-    /* Accent color (buttons, links, highlights) */
     --accent: #00d4ff;
     --accent-hover: #00b8e6;
-
-    /* Text colors */
     --text-primary: #eee;
     --text-secondary: #ccc;
     --text-muted: #666;
     --btn-bg: #49496f;
-
-    /* Borders & Radius */
     --border-subtle: #444;
+}
+
+[data-theme="light"] {
+    --bg-primary: #f5f5f5;
+    --bg-card: #ffffff;
+    --bg-code: #f0f0f0;
+    --accent: #0077aa;
+    --accent-hover: #005577;
+    --text-primary: #222;
+    --text-secondary: #444;
+    --text-muted: #888;
+    --btn-bg: #e0e0e0;
+    --border-subtle: #ccc;
+}
+
+:root {
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 12px;
@@ -153,7 +163,7 @@ button:active {
 
 .tip-title {
     font-size: 1.1rem;
-    color: #fff;
+    color: var(--text-primary);
     margin-bottom: 1rem;
 }
 
@@ -254,4 +264,106 @@ button:active {
     text-align: center;
     color: var(--text-muted);
     padding: 2rem;
+}
+
+.footer {
+    text-align: center;
+    color: var(--text-muted);
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.footer a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+.about-content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.about-section {
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid var(--accent);
+}
+
+.about-section h2 {
+    color: var(--accent);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.about-section p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.about-list {
+    list-style: none;
+    color: var(--text-secondary);
+}
+
+.about-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.about-list li:last-child {
+    border-bottom: none;
+}
+
+.about-list a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.about-list a:hover {
+    text-decoration: underline;
+}
+
+.about-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.about-table th,
+.about-table td {
+    text-align: left;
+    padding: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.about-table th {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.about-table code {
+    background: var(--bg-code);
+    padding: 0.2rem 0.4rem;
+    border-radius: var(--radius-sm);
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.85rem;
+}
+
+.theme-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+}
+
+.theme-btn:hover {
+    background: var(--bg-card);
+    border-color: var(--text-muted);
+    color: var(--text-primary);
 }

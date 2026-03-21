@@ -149,8 +149,8 @@ Categories and the prompt template are defined in `config.json`:
   "prompt_template": "Generate a Drupal tip for category #{cat_id}: {cat_desc}...",
   "code_language": "php",
   "categories": {
-    "1": {"name": "proposed-new-module", "live_fetch": true, "desc": "Proposed new module"},
-    "35": {"name": "core-service", "live_fetch": false, "desc": "Lesser-known core service"}
+    "1": {"name": "proposed-new-module", "desc": "Proposed new module"},
+    "35": {"name": "core-service", "desc": "Lesser-known core service"}
   }
 }
 ```

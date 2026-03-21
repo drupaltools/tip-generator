@@ -78,6 +78,19 @@ try:
 except ImportError:
     HAS_ANTHROPIC = False
 
+# Import url_cache for remote content fetching
+try:
+    from url_cache import (
+        extract_urls,
+        fetch_category_urls,
+        fetch_all_category_data,
+        build_context_for_category,
+    )
+
+    HAS_URL_CACHE = True
+except ImportError:
+    HAS_URL_CACHE = False
+
 try:
     from openai import OpenAI
 
@@ -106,13 +119,24 @@ CATEGORIES = {int(k): v for k, v in CONFIG["categories"].items()}
 TIPS_DIR = SCRIPT_DIR / "tips"
 
 
-def get_prompt_for_category(cat_id: int, cat_info: dict) -> str:
+def get_prompt_for_category(
+    cat_id: int, cat_info: dict, include_context: bool = True
+) -> str:
     """Generate a prompt for a specific category using the template from config."""
     template = CONFIG.get("prompt_template", "")
 
-    return template.format(
+    context = ""
+    if include_context and HAS_URL_CACHE:
+        context = build_context_for_category(cat_id, cat_info)
+
+    prompt = template.format(
         cat_id=cat_id, cat_desc=cat_info["desc"], cat_name=cat_info["name"]
     )
+
+    if context:
+        prompt = f"{prompt}\n\nHere is some reference data you can use:\n\n{context}"
+
+    return prompt
 
 
 def generate_file_id() -> str:
@@ -131,16 +155,30 @@ def save_tip(cat_info: dict, content: Optional[str]) -> Optional[Path]:
     file_id = generate_file_id()
     file_path = category_dir / f"{file_id}.md"
 
-    if not content.startswith("---"):
-        content = f"""---
+    # Extract frontmatter if present, then strip it
+    title = ""
+    body = content.strip()
+    if body.startswith("---"):
+        parts = body.split("---", 2)
+        if len(parts) >= 3:
+            fm_text = parts[1]
+            body = parts[2].strip()
+            # Extract title from existing frontmatter
+            for line in fm_text.split("\n"):
+                if line.strip().startswith("title:"):
+                    title = line.split("title:", 1)[1].strip()
+                    break
+
+    frontmatter = f"""---
 category: {cat_info["name"]}
 generated: {datetime.now().isoformat()}
----
-
-{content}"""
+"""
+    if title:
+        frontmatter += f"title: {title}\n"
+    frontmatter += "---\n\n"
 
     with open(file_path, "w") as f:
-        f.write(content)
+        f.write(frontmatter + body)
 
     return file_path
 
@@ -386,9 +424,17 @@ def call_openai_sync(prompt: str, api_key: str, model: str = None) -> dict:
         max_completion_tokens=2048,
         messages=[{"role": "user", "content": prompt}],
     )
+
+    choice = response.choices[0]
+    content = choice.message.content
+    if content is None:
+        raise ValueError(
+            f"Model returned empty content (finish_reason: {choice.finish_reason})"
+        )
+
     return {
-        "content": response.choices[0].message.content,
-        "finish_reason": response.choices[0].finish_reason,  # "stop" or "length"
+        "content": content,
+        "finish_reason": choice.finish_reason,
     }
 
 
@@ -408,9 +454,19 @@ def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
         max_completion_tokens=2048,
         messages=[{"role": "user", "content": prompt}],
     )
+
+    choice = response.choices[0]
+    content = choice.message.content
+    finish_reason = choice.finish_reason
+
+    if content is None:
+        raise ValueError(
+            f"Model returned empty content (finish_reason: {finish_reason})"
+        )
+
     return {
-        "content": response.choices[0].message.content,
-        "finish_reason": response.choices[0].finish_reason,  # "stop" or "length"
+        "content": content,
+        "finish_reason": finish_reason,
     }
 
 
@@ -701,8 +757,7 @@ def list_categories():
     """List all available categories."""
     print("Available categories:\n")
     for cat_id, info in CATEGORIES.items():
-        live = " [LIVE]" if info["live_fetch"] else ""
-        print(f"  {cat_id:2d}. {info['desc']}{live}")
+        print(f"  {cat_id:2d}. {info['desc']}")
     print(f"\nTotal: {len(CATEGORIES)} categories")
     print("\nUse 'all' as category to generate for all categories")
 
@@ -1266,6 +1321,17 @@ def main():
         action="store_true",
         help="Validate tip files (use with --validate-file, --validate-category, or --validate-all)",
     )
+    group.add_argument(
+        "--fetch-data",
+        action="store_true",
+        help="Fetch and cache remote data for categories with URLs (run before generating)",
+    )
+    group.add_argument(
+        "--fetch-category",
+        type=int,
+        metavar="N",
+        help="Fetch data for a specific category only",
+    )
     parser.add_argument(
         "--validate-file",
         type=str,
@@ -1338,6 +1404,29 @@ def main():
 
     if args.random_tip:
         print_random_tip(args.tip_category)
+        return
+
+    if args.fetch_data:
+        if not HAS_URL_CACHE:
+            print("Error: url_cache module not available")
+            return
+        print("Fetching remote data for all categories with URLs...")
+        results = fetch_all_category_data(force=True)
+        total = sum(len(paths) for paths in results.values())
+        print(f"\nDone! Cached {total} files for {len(results)} categories.")
+        return
+
+    if args.fetch_category:
+        if not HAS_URL_CACHE:
+            print("Error: url_cache module not available")
+            return
+        if args.fetch_category not in CATEGORIES:
+            print(f"Error: Category {args.fetch_category} not found")
+            return
+        cat_info = CATEGORIES[args.fetch_category]
+        print(f"Fetching data for category {args.fetch_category}: {cat_info['name']}")
+        cached = fetch_category_urls(args.fetch_category, cat_info, force=True)
+        print(f"\nCached {len(cached)} files")
         return
 
     if (

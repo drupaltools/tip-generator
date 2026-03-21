@@ -1,0 +1,406 @@
+#!/usr/bin/env python3
+"""Fetch and cache remote content for tip generation."""
+
+import re
+import json
+import hashlib
+from pathlib import Path
+from datetime import datetime
+from typing import Optional, List, Dict, Any
+
+import requests
+import html2text
+
+SCRIPT_DIR = Path(__file__).parent
+CACHE_DIR = SCRIPT_DIR / "cache-data" / "url_cache"
+USER_AGENT = (
+    "DrupalTipGenerator/1.0 (https://github.com/drupaltools/drupal-tip-generator)"
+)
+FETCH_TIMEOUT = 30
+
+
+def ensure_cache_dir() -> Path:
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    return CACHE_DIR
+
+
+def extract_urls(text: str) -> List[str]:
+    url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
+    return list(set(re.findall(url_pattern, text)))
+
+
+def is_homepage_url(url: str) -> bool:
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    path = parsed.path.rstrip("/")
+    return path == "" or path == parsed.netloc
+
+
+def get_url_hash(url: str) -> str:
+    return hashlib.md5(url.encode()).hexdigest()[:12]
+
+
+def fetch_wikipedia(url: str) -> tuple[str, str]:
+    match = re.search(r"wikipedia\.org/wiki/([^/?#]+)", url)
+    if not match:
+        return None, None
+
+    title = match.group(1).replace("_", " ")
+    api_url = f"https://en.wikipedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "titles": title,
+        "prop": "extracts",
+        "exintro": False,
+        "explaintext": True,
+        "format": "json",
+    }
+    response = requests.get(
+        api_url,
+        params=params,
+        headers={"User-Agent": USER_AGENT},
+        timeout=FETCH_TIMEOUT,
+    )
+    response.raise_for_status()
+    data = response.json()
+
+    pages = data.get("query", {}).get("pages", {})
+    for page_data in pages.values():
+        if "extract" in page_data:
+            return page_data["extract"], page_data.get("title", title)
+
+    return None, None
+
+
+def fetch_html(url: str) -> tuple[str, str]:
+    # Use Wikipedia API for cleaner content
+    if "wikipedia.org" in url.lower():
+        extract, title = fetch_wikipedia(url)
+        if extract:
+            return extract, title
+
+    headers = {"User-Agent": USER_AGENT}
+    response = requests.get(url, headers=headers, timeout=FETCH_TIMEOUT)
+    response.raise_for_status()
+    html_content = response.text
+
+    title_match = re.search(r"<title[^>]*>([^<]+)</title>", html_content, re.IGNORECASE)
+    title = title_match.group(1).strip() if title_match else ""
+
+    h = html2text.HTML2Text()
+    h.ignore_links = False
+    h.ignore_images = True
+    h.body_width = 0
+    h.unicode_snob = True
+
+    html_content = re.sub(
+        r"<script[^>]*>.*?</script>", "", html_content, flags=re.DOTALL | re.IGNORECASE
+    )
+    html_content = re.sub(
+        r"<style[^>]*>.*?</style>", "", html_content, flags=re.DOTALL | re.IGNORECASE
+    )
+
+    markdown_content = h.handle(html_content)
+    markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
+
+    return markdown_content.strip(), title
+
+
+def fetch_json(url: str) -> tuple[Any, str]:
+    headers = {"User-Agent": USER_AGENT}
+    response = requests.get(url, headers=headers, timeout=FETCH_TIMEOUT)
+    response.raise_for_status()
+    return response.json(), url
+
+
+def fetch_url(url: str) -> Dict[str, Any]:
+    result = {
+        "url": url,
+        "cached_at": datetime.now().isoformat(),
+    }
+
+    if url.endswith(".json"):
+        content_type = "json"
+    else:
+        content_type = "html"
+
+    headers = {"User-Agent": USER_AGENT}
+    head_response = requests.head(
+        url, headers=headers, timeout=10, allow_redirects=True
+    )
+    content_type_header = head_response.headers.get("Content-Type", "")
+
+    if "application/json" in content_type_header:
+        content_type = "json"
+
+    try:
+        if content_type == "json":
+            data, source = fetch_json(url)
+            result["type"] = "json"
+            result["content"] = data
+            result["source_url"] = source
+        else:
+            markdown, title = fetch_html(url)
+            result["type"] = "markdown"
+            result["content"] = markdown
+            result["title"] = title
+            result["source_url"] = url
+
+    except requests.RequestException as e:
+        result["error"] = str(e)
+        result["type"] = "error"
+
+    return result
+
+
+def cache_content(url: str, data: Dict[str, Any]) -> Path:
+    ensure_cache_dir()
+
+    url_hash = get_url_hash(url)
+    content_type = data.get("type", "unknown")
+    extension = "json" if content_type == "json" else "md"
+    cache_file = CACHE_DIR / f"{url_hash}.{extension}"
+
+    cache_entry = {
+        "url": url,
+        "cached_at": data.get("cached_at"),
+        "type": content_type,
+        "title": data.get("title"),
+        "source_url": data.get("source_url"),
+    }
+
+    if content_type == "json":
+        cache_entry["data"] = data.get("content")
+        with open(cache_file, "w", encoding="utf-8") as f:
+            json.dump(cache_entry, f, indent=2, ensure_ascii=False)
+    else:
+        with open(cache_file, "w", encoding="utf-8") as f:
+            f.write(f"---\n")
+            f.write(f"url: {url}\n")
+            f.write(f"cached_at: {data.get('cached_at')}\n")
+            f.write(f"title: {data.get('title', '')}\n")
+            f.write(f"source_url: {data.get('source_url', '')}\n")
+            f.write(f"---\n\n")
+            f.write(data.get("content", ""))
+
+    return cache_file
+
+
+def get_cached_content(url: str) -> Optional[Dict[str, Any]]:
+    url_hash = get_url_hash(url)
+
+    for ext in ["md", "json"]:
+        cache_file = CACHE_DIR / f"{url_hash}.{ext}"
+        if cache_file.exists():
+            if ext == "json":
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            else:
+                with open(cache_file, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    if content.startswith("---"):
+                        parts = content.split("---", 2)
+                        if len(parts) >= 3:
+                            fm_text = parts[1]
+                            body = parts[2].strip()
+                            fm_data = {}
+                            for line in fm_text.strip().split("\n"):
+                                if ":" in line:
+                                    key, val = line.split(":", 1)
+                                    fm_data[key.strip()] = val.strip()
+                            return {
+                                "type": "markdown",
+                                "content": body,
+                                "title": fm_data.get("title", ""),
+                                "url": fm_data.get("url", url),
+                                "cached_at": fm_data.get("cached_at", ""),
+                            }
+                    return {"type": "markdown", "content": content}
+
+    return None
+
+
+def is_cache_valid(cache_entry: Dict[str, Any], max_age_hours: int = 24) -> bool:
+    cached_at = cache_entry.get("cached_at", "")
+    if not cached_at:
+        return False
+
+    try:
+        cached_time = datetime.fromisoformat(cached_at)
+        age = datetime.now() - cached_time
+        return age.total_seconds() < (max_age_hours * 3600)
+    except (ValueError, TypeError):
+        return False
+
+
+def fetch_category_urls(
+    category_id: int, category_info: Dict[str, Any], force: bool = False
+) -> List[Path]:
+    description = category_info.get("desc", "")
+
+    # Get URLs from both 'urls' field and description text
+    urls = list(category_info.get("urls", [])) if "urls" in category_info else []
+    urls.extend(extract_urls(description))
+    urls = list(set(urls))  # Deduplicate
+
+    if not urls:
+        return []
+
+    cached_files = []
+    for url in urls:
+        if is_homepage_url(url):
+            print(f"  [skip] homepage URL: {url}")
+            continue
+
+        cached = get_cached_content(url)
+
+        if cached and not force and is_cache_valid(cached):
+            print(f"  [cached] {url}")
+            url_hash = get_url_hash(url)
+            ext = "json" if cached.get("type") == "json" else "md"
+            cached_files.append(CACHE_DIR / f"{url_hash}.{ext}")
+        else:
+            print(f"  [fetching] {url}")
+            try:
+                data = fetch_url(url)
+                if data.get("type") != "error":
+                    cache_file = cache_content(url, data)
+                    cached_files.append(cache_file)
+                    print(f"    -> saved to {cache_file.name}")
+                else:
+                    print(f"    -> ERROR: {data.get('error')}")
+            except Exception as e:
+                print(f"    -> ERROR: {e}")
+
+    return cached_files
+
+
+def fetch_all_category_data(force: bool = False) -> Dict[int, List[Path]]:
+    from tip_generator import CATEGORIES
+
+    results = {}
+    for cat_id, cat_info in CATEGORIES.items():
+        # Get URLs from both 'urls' field and description text
+        urls = list(cat_info.get("urls", [])) if "urls" in cat_info else []
+        urls.extend(extract_urls(cat_info.get("desc", "")))
+        urls = list(set(urls))
+        if urls:
+            print(f"\nCategory {cat_id}: {cat_info['name']}")
+            cached = fetch_category_urls(cat_id, cat_info, force=force)
+            results[cat_id] = cached
+
+    return results
+
+
+def build_context_for_category(category_id: int, category_info: Dict[str, Any]) -> str:
+    description = category_info.get("desc", "")
+
+    # Get URLs from both 'urls' field and description text
+    urls = list(category_info.get("urls", [])) if "urls" in category_info else []
+    urls.extend(extract_urls(description))
+    urls = list(set(urls))  # Deduplicate
+
+    if not urls:
+        return ""
+
+    context_parts = []
+
+    for url in urls:
+        cached = get_cached_content(url)
+        if cached and is_cache_valid(cached):
+            if cached.get("type") == "json":
+                data = cached.get("data", {})
+                if isinstance(data, list) and len(data) > 0:
+                    sample = data[:10]
+                    context_parts.append(
+                        f"Data from {url}:\n```json\n{json.dumps(sample, indent=2)}\n```"
+                    )
+                elif isinstance(data, dict):
+                    context_parts.append(
+                        f"Data from {url}:\n```json\n{json.dumps(data, indent=2)}\n```"
+                    )
+            else:
+                title = cached.get("title", "Untitled")
+                content = cached.get("content", "")
+                if len(content) > 2000:
+                    content = content[:2000] + "\n\n[... content truncated ...]"
+                context_parts.append(f"Reference from {url} ({title}):\n\n{content}")
+
+    if context_parts:
+        return "\n\n---\n\n".join(context_parts)
+
+    return ""
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="URL Cache Manager for Drupal Tips")
+    parser.add_argument("--fetch", action="store_true", help="Fetch all category URLs")
+    parser.add_argument(
+        "--fetch-category",
+        type=int,
+        metavar="N",
+        help="Fetch URLs for specific category",
+    )
+    parser.add_argument(
+        "--force", action="store_true", help="Force re-fetch even if cached"
+    )
+    parser.add_argument("--list", action="store_true", help="List cached URLs")
+    parser.add_argument("--clear", action="store_true", help="Clear all cached data")
+
+    args = parser.parse_args()
+
+    if args.clear:
+        import shutil
+
+        if CACHE_DIR.exists():
+            shutil.rmtree(CACHE_DIR)
+            print(f"Cleared cache directory: {CACHE_DIR}")
+        else:
+            print("Cache directory does not exist")
+        return
+
+    if args.list:
+        if not CACHE_DIR.exists():
+            print("No cached data found")
+            return
+
+        files = list(CACHE_DIR.iterdir())
+        if not files:
+            print("No cached data found")
+            return
+
+        print(f"Cached files in {CACHE_DIR}:")
+        for f in sorted(files):
+            stat = f.stat()
+            mtime = datetime.fromtimestamp(stat.st_mtime).strftime("%Y-%m-%d %H:%M")
+            print(f"  {f.name} ({stat.st_size} bytes, {mtime})")
+        return
+
+    if args.fetch:
+        print("Fetching data for all categories with URLs...")
+        results = fetch_all_category_data(force=args.force)
+        total = sum(len(paths) for paths in results.values())
+        print(f"\nDone! Cached {total} files.")
+        return
+
+    if args.fetch_category:
+        from tip_generator import CATEGORIES
+
+        if args.fetch_category not in CATEGORIES:
+            print(f"Category {args.fetch_category} not found")
+            return
+
+        cat_info = CATEGORIES[args.fetch_category]
+        print(f"Fetching URLs for category {args.fetch_category}: {cat_info['name']}")
+        cached = fetch_category_urls(args.fetch_category, cat_info, force=args.force)
+        print(f"\nCached {len(cached)} files")
+        return
+
+    parser.print_help()
+
+
+if __name__ == "__main__":
+    main()

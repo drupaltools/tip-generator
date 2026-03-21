@@ -7,6 +7,9 @@ errors.json
 # Generated tips (can be regenerated)
 tips/
 
+# Cached remote data (URL fetches)
+cache-data/
+
 # Python
 __pycache__/
 *.py[cod]
