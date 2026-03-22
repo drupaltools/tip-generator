@@ -124,6 +124,8 @@ def get_prompt_for_category(
 ) -> str:
     """Generate a prompt for a specific category using the template from config."""
     template = CONFIG.get("prompt_template", "")
+    if isinstance(template, list):
+        template = "\n".join(template)
 
     context = ""
     if include_context and HAS_URL_CACHE:
