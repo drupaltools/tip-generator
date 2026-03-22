@@ -122,8 +122,18 @@ Only use this step if the static database is empty. Pick one category from this 
 | 76 | Subrequest handling and render context isolation | No |
 | 77 | Library API usage and asset attachment strategy | No |
 | 78 | How Drupal handles CSRF protection in forms and routes | No |
-| 79 | TemporaryStore vs PrivateTempStore usage | No |
+| 79 | MySQL specific queries, best practices and performance tips | No |
 | 80 | Internal logging system (watchdog / logger channel) usage patterns | No |
+| 81 | A short joke using Drupal terminology | No |
+| 82 | New features in Drupal 11 | No |
+| 83 | New features in PHP 8.5 | No |
+| 84 | Drupal best practices | Yes - fetch from https://raw.githubusercontent.com/theodorosploumis/drupal-best-practices/refs/heads/master/README.md |
+| 85 | Rare and interesting devel module drush commands | No |
+| 86 | Rare and interesting commands and usages of drupalorg cli | Yes - fetch from https://github.com/mglaman/drupalorg-cli |
+| 87 | Rare and interesting commands and usages of robo cli | Yes - fetch from https://robo.li |
+| 88 | Rephrase a famous song verse for Drupal | No |
+| 89 | Interesting tips and usages of the webform module and its submodules | No |
+| 90 | Interesting tips, code examples, cli commands and IDE plugins for xdebug and xhprof with PHP | No |
 
 ---
 
@@ -193,14 +203,28 @@ To populate the static tip database, use the generator tool:
 # List categories
 python3 ~/.claude/skills/drupal-tip/tip_generator.py --list-categories
 
+# Fetch/cache URL data for categories that have URLs defined
+python3 ~/.claude/skills/drupal-tip/url_cache.py --fetch-data
+
+# Fetch/cache for specific category
+python3 ~/.claude/skills/drupal-tip/url_cache.py --fetch-category 84
+
 # Generate tips (uses batch API for >5 requests = 50% cheaper)
-python3 ~/.claude/skills/drupal-tip/tip_generator.py -c 35 -n 5 -p anthropic
+python3 ~/.claude/skills/drupal-tip/tip_generator.py -c 35 -n 5 -p openai
 
 # Generate for all categories
 python3 ~/.claude/skills/drupal-tip/tip_generator.py -c all -n 3 -p openai
 
 # Check batch status
-python3 ~/.claude/skills/drupal-tip/tip_generator.py --check-batch <batch_id> -p anthropic --save-results
+python3 ~/.claude/skills/drupal-tip/tip_generator.py --check-batch <batch_id> -p openai --save-results
+
+# Validate generated tips
+python3 ~/.claude/skills/drupal-tip/tip_generator.py --validate --validate-category core-service
 ```
+
+**Categories with built-in URL data:**
+- Category 84 (general-best-practices) - uses drupal-best-practices GitHub README
+- Category 86 (drupalorg-cli) - uses drupalorg-cli GitHub repo
+- Category 87 (robo-cli) - uses robo.li website
 
 Supported providers: `anthropic`, `openai`, `openrouter`
