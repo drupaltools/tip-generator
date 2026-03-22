@@ -507,6 +507,8 @@ def generate_sync(
 
         cat_info = CATEGORIES[cat_id]
         print(f"\nCategory {cat_id}: {cat_info['desc']}")
+        effective_model = model or get_default_model(provider)
+        print(f"  Provider: {provider} | Model: {effective_model}")
 
         for i in range(count):
             prompt = get_prompt_for_category(cat_id, cat_info)
