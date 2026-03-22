@@ -1,0 +1,23 @@
+tip_generator.py
+  e3a4c39d35307f1a 510-511
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.17",
+  "base_commit_sha": "5509d11a9aa6eb4919583f21fd5539a77ca5aae8",
+  "prompts": {
+    "e3a4c39d35307f1a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2f47d2239ffeBk2FKib5ycdTWl-94f04d7e-05e5-4438-8fb7-941d01a54ab1",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
