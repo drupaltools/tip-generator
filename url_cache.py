@@ -74,7 +74,6 @@ def fetch_wikipedia(url: str) -> tuple[str, str]:
 
 
 def fetch_html(url: str) -> tuple[str, str]:
-    # Use Wikipedia API for cleaner content
     if "wikipedia.org" in url.lower():
         extract, title = fetch_wikipedia(url)
         if extract:
@@ -83,8 +82,17 @@ def fetch_html(url: str) -> tuple[str, str]:
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=FETCH_TIMEOUT)
     response.raise_for_status()
-    html_content = response.text
+    content_type = response.headers.get("Content-Type", "")
+    text_content = response.text
 
+    if "text/plain" in content_type or url.endswith(".md") or url.endswith(".txt"):
+        title_match = re.search(
+            r"<title[^>]*>([^<]+)</title>", text_content, re.IGNORECASE
+        )
+        title = title_match.group(1).strip() if title_match else ""
+        return text_content, title
+
+    html_content = text_content
     title_match = re.search(r"<title[^>]*>([^<]+)</title>", html_content, re.IGNORECASE)
     title = title_match.group(1).strip() if title_match else ""
 
@@ -103,8 +111,47 @@ def fetch_html(url: str) -> tuple[str, str]:
 
     markdown_content = h.handle(html_content)
     markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
+    markdown_content = clean_markdown(markdown_content)
 
     return markdown_content.strip(), title
+
+
+def clean_markdown(content: str) -> str:
+    content = re.sub(r"\\-", "-", content)
+    content = re.sub(r"\\\*", "*", content)
+    content = re.sub(r"\\`", "`", content)
+    content = re.sub(r"\\#", "#", content)
+    content = re.sub(r"\\_", "_", content)
+
+    lines = content.split("\n")
+    cleaned = []
+    prev_empty = False
+
+    for line in lines:
+        line = line.rstrip()
+        stripped = line.strip()
+
+        if re.match(r"^[-*_]{3,}$", stripped):
+            continue
+        if not stripped:
+            if not prev_empty:
+                cleaned.append("")
+            prev_empty = True
+            continue
+
+        if len(stripped) > 300:
+            parts = re.split(r"\\\+|\s+\\\s+|\s{2,}", stripped)
+            for part in parts:
+                part = part.strip()
+                if part and len(part) > 20:
+                    cleaned.append(part)
+            prev_empty = False
+            continue
+
+        cleaned.append(line)
+        prev_empty = False
+
+    return "\n".join(cleaned)
 
 
 def fetch_json(url: str) -> tuple[Any, str]:
@@ -323,8 +370,9 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
             else:
                 title = cached.get("title", "Untitled")
                 content = cached.get("content", "")
-                if len(content) > 2000:
-                    content = content[:2000] + "\n\n[... content truncated ...]"
+                # Use 10000 char limit to give AI enough context
+                if len(content) > 10000:
+                    content = content[:10000] + "\n\n[... content truncated ...]"
                 context_parts.append(f"Reference from {url} ({title}):\n\n{content}")
 
     if context_parts:
