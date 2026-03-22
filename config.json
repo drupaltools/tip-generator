@@ -2,7 +2,9 @@
   "prompt_template": [
     "Generate a Drupal tip for category #{cat_id}: {cat_desc}",
     "",
-    "NOTE: When reference data is provided below, your tip MUST be based on specific information from that reference. Extract a concrete, testable tip from the reference content. Do not generate generic tips.",
+    "NOTE: When reference data is provided below, your tip MUST be based on specific information from that reference. ",
+    "Extract a concrete, testable tip from the reference content.",
+    "Do not generate generic tips.",
     "",
     "Requirements:",
     "- One paragraph maximum (2-4 sentences)",
