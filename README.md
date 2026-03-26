@@ -72,6 +72,7 @@ Get a tip from the pre-generated database instantly — no API call needed:
 | `-n, --count` | Number of tips per category (default: 5) |
 | `-p, --provider` | LLM provider: `anthropic`, `openai`, `openrouter` |
 | `-m, --model` | Override default model |
+| `-u, --api-url` | Custom API URL for OpenAI/Anthropic-compatible endpoints |
 | `--no-wait` | Don't wait for batch completion |
 | `--dry-run` | Show what would be done without calling API |
 | `--list-categories` | List all available categories |
@@ -97,6 +98,9 @@ Get a tip from the pre-generated database instantly — no API call needed:
 
 # Use a specific model
 .venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4
+
+# Use a custom API URL (e.g., local LLM server)
+.venv/bin/python tip_generator.py -c 35 -n 5 -p openai -u http://localhost:11434/v1
 ```
 
 ## Batch API Notes

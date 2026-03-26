@@ -64,10 +64,22 @@ DEFAULT_MODELS = {
     "openrouter": get_env("OPENROUTER_MODEL", "openai/gpt-5.1-codex-mini"),
 }
 
+# Default API URLs per provider (can be overridden in .env with TIPGEN_ prefix)
+DEFAULT_API_URLS = {
+    "anthropic": get_env("ANTHROPIC_API_URL", None),  # TIPGEN_ANTHROPIC_API_URL
+    "openai": get_env("OPENAI_API_URL", None),  # TIPGEN_OPENAI_API_URL
+    "openrouter": "https://openrouter.ai/api/v1",
+}
+
 
 def get_default_model(provider: str) -> str:
     """Get default model for provider from env or hardcoded fallback."""
     return DEFAULT_MODELS.get(provider, "unknown")
+
+
+def get_default_api_url(provider: str) -> Optional[str]:
+    """Get default API URL for provider from env or hardcoded fallback."""
+    return DEFAULT_API_URLS.get(provider)
 
 
 # Try to import LLM libraries
@@ -100,6 +112,9 @@ except ImportError:
 
 # Config file path
 CONFIG_FILE = SCRIPT_DIR / "config.json"
+
+# Project URL for HTTP headers
+PROJECT_URL = "https://github.com/drupaltools/tip-generator"
 
 
 def load_config() -> dict:
@@ -188,12 +203,17 @@ generated: {datetime.now().isoformat()}
 # ============ BATCH API FUNCTIONS ============
 
 
-def anthropic_batch_create(requests: List[dict], api_key: str) -> str:
+def anthropic_batch_create(
+    requests: List[dict], api_key: str, api_url: str = None
+) -> str:
     """Create an Anthropic batch and return the batch ID."""
-    client = anthropic.Anthropic(
-        api_key=api_key,
-        default_headers={"anthropic-beta": "message-batches-2024-09-24"},
-    )
+    client_kwargs = {
+        "api_key": api_key,
+        "default_headers": {"anthropic-beta": "message-batches-2024-09-24"},
+    }
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = anthropic.Anthropic(**client_kwargs)
 
     batch_requests = []
     for req in requests:
@@ -212,9 +232,12 @@ def anthropic_batch_create(requests: List[dict], api_key: str) -> str:
     return batch.id
 
 
-def anthropic_batch_check(batch_id: str, api_key: str) -> dict:
+def anthropic_batch_check(batch_id: str, api_key: str, api_url: str = None) -> dict:
     """Check Anthropic batch status and return results if complete."""
-    client = anthropic.Anthropic(api_key=api_key)
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = anthropic.Anthropic(**client_kwargs)
     batch = client.messages.batches.retrieve(batch_id)
 
     result = {
@@ -237,9 +260,14 @@ def anthropic_batch_check(batch_id: str, api_key: str) -> dict:
     return result
 
 
-def openai_batch_create(requests: List[dict], api_key: str, model: str = None) -> str:
+def openai_batch_create(
+    requests: List[dict], api_key: str, model: str = None, api_url: str = None
+) -> str:
     """Create an OpenAI batch and return the batch ID."""
-    client = OpenAI(api_key=api_key)
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = OpenAI(**client_kwargs)
     model = model or get_default_model("openai")
 
     # Create JSONL file content
@@ -276,9 +304,12 @@ def openai_batch_create(requests: List[dict], api_key: str, model: str = None) -
     return batch.id
 
 
-def openai_batch_check(batch_id: str, api_key: str) -> dict:
+def openai_batch_check(batch_id: str, api_key: str, api_url: str = None) -> dict:
     """Check OpenAI batch status and return results if complete."""
-    client = OpenAI(api_key=api_key)
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = OpenAI(**client_kwargs)
     batch = client.batches.retrieve(batch_id)
 
     result = {
@@ -316,13 +347,13 @@ def openai_batch_check(batch_id: str, api_key: str) -> dict:
     return result
 
 
-def openrouter_batch_check(batch_id: str, api_key: str) -> dict:
+def openrouter_batch_check(batch_id: str, api_key: str, api_url: str = None) -> dict:
     """Check OpenRouter batch status and return results if complete."""
     client = OpenAI(
         api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
+        base_url=api_url or "https://openrouter.ai/api/v1",
         default_headers={
-            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "HTTP-Referer": PROJECT_URL,
             "X-OpenRouter-Title": "Drupal Tip Generator",
             "X-OpenRouter-Categories": "cli-agent",
         },
@@ -353,15 +384,15 @@ def openrouter_batch_check(batch_id: str, api_key: str) -> dict:
 
 
 def openrouter_batch_create(
-    requests: List[dict], api_key: str, model: str = None
+    requests: List[dict], api_key: str, model: str = None, api_url: str = None
 ) -> str:
     """Create an OpenRouter batch - uses OpenAI-compatible API with OpenRouter base URL."""
     model = model or get_default_model("openrouter")
     client = OpenAI(
         api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
+        base_url=api_url or "https://openrouter.ai/api/v1",
         default_headers={
-            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "HTTP-Referer": PROJECT_URL,
             "X-OpenRouter-Title": "Drupal Tip Generator",
             "X-OpenRouter-Categories": "cli-agent",
         },
@@ -404,12 +435,17 @@ def openrouter_batch_create(
 # ============ SYNC API FUNCTIONS ============
 
 
-def call_anthropic_sync(prompt: str, api_key: str, model: str = None) -> dict:
+def call_anthropic_sync(
+    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+) -> dict:
     """Call Anthropic API synchronously."""
-    client = anthropic.Anthropic(api_key=api_key)
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = anthropic.Anthropic(**client_kwargs)
     message = client.messages.create(
         model=model or get_default_model("anthropic"),
-        max_tokens=2048,
+        max_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
     return {
@@ -418,12 +454,17 @@ def call_anthropic_sync(prompt: str, api_key: str, model: str = None) -> dict:
     }
 
 
-def call_openai_sync(prompt: str, api_key: str, model: str = None) -> dict:
+def call_openai_sync(
+    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+) -> dict:
     """Call OpenAI API synchronously."""
-    client = OpenAI(api_key=api_key)
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    client = OpenAI(**client_kwargs)
     response = client.chat.completions.create(
         model=model or get_default_model("openai"),
-        max_completion_tokens=2048,
+        max_completion_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
 
@@ -440,20 +481,22 @@ def call_openai_sync(prompt: str, api_key: str, model: str = None) -> dict:
     }
 
 
-def call_openrouter_sync(prompt: str, api_key: str, model: str = None) -> dict:
+def call_openrouter_sync(
+    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+) -> dict:
     """Call OpenRouter API synchronously."""
     client = OpenAI(
         api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
+        base_url=api_url or "https://openrouter.ai/api/v1",
         default_headers={
-            "HTTP-Referer": "https://github.com/drupaltools/drupal-tip-generator",
+            "HTTP-Referer": PROJECT_URL,
             "X-OpenRouter-Title": "Drupal Tip Generator",
             "X-OpenRouter-Categories": "cli-agent",
         },
     )
     response = client.chat.completions.create(
         model=model or get_default_model("openrouter"),
-        max_completion_tokens=2048,
+        max_completion_tokens=max_tokens,
         messages=[{"role": "user", "content": prompt}],
     )
 
@@ -494,11 +537,21 @@ def log_error(error_data: dict) -> None:
 
 
 def generate_sync(
-    categories: List[int], count: int, provider: str, api_key: str, model: Optional[str]
+    categories: List[int],
+    count: int,
+    provider: str,
+    api_key: str,
+    model: Optional[str],
+    api_url: Optional[str] = None,
+    max_tokens: int = 4096,
+    save_truncated: bool = False,
 ) -> int:
     """Generate tips synchronously (one at a time)."""
     generated = 0
     truncated = 0
+
+    # Use default API URL if not provided
+    effective_api_url = api_url or get_default_api_url(provider)
 
     for cat_id in categories:
         if cat_id not in CATEGORIES:
@@ -509,6 +562,9 @@ def generate_sync(
         print(f"\nCategory {cat_id}: {cat_info['desc']}")
         effective_model = model or get_default_model(provider)
         print(f"  Provider: {provider} | Model: {effective_model}")
+        if effective_api_url:
+            print(f"  API URL: {effective_api_url}")
+        print(f"  Max tokens: {max_tokens}")
 
         for i in range(count):
             prompt = get_prompt_for_category(cat_id, cat_info)
@@ -517,16 +573,22 @@ def generate_sync(
 
             try:
                 if provider == "anthropic":
+                    if not HAS_ANTHROPIC:
+                        print("Error: Anthropic package not installed. Install with: pip install anthropic")
+                        return 0
                     tip_data = call_anthropic_sync(
-                        prompt, api_key, model or get_default_model("anthropic")
+                        prompt, api_key, model or get_default_model("anthropic"), effective_api_url, max_tokens
                     )
                 elif provider == "openai":
+                    if not HAS_OPENAI:
+                        print("Error: OpenAI package not installed. Install with: pip install openai")
+                        return 0
                     tip_data = call_openai_sync(
-                        prompt, api_key, model or get_default_model("openai")
+                        prompt, api_key, model or get_default_model("openai"), effective_api_url, max_tokens
                     )
                 elif provider == "openrouter":
                     tip_data = call_openrouter_sync(
-                        prompt, api_key, model or get_default_model("openrouter")
+                        prompt, api_key, model or get_default_model("openrouter"), effective_api_url, max_tokens
                     )
                 else:
                     raise ValueError(f"Unknown provider: {provider}")
@@ -534,23 +596,28 @@ def generate_sync(
                 # Check for truncation
                 finish_reason = tip_data.get("finish_reason", "unknown")
                 if finish_reason in ("length", "max_tokens"):
-                    print(f"TRUNCATED ({finish_reason})")
-                    truncated += 1
-                    log_error(
-                        {
-                            "timestamp": datetime.now().isoformat(),
-                            "category_id": cat_id,
-                            "category_name": cat_info.get("name"),
-                            "tip_number": i + 1,
-                            "provider": provider,
-                            "model": model or get_default_model(provider),
-                            "error": f"Response truncated (finish_reason: {finish_reason})",
-                            "content": tip_data.get("content", "")[
-                                :500
-                            ],  # First 500 chars for debugging
-                        }
-                    )
-                    continue
+                    if save_truncated:
+                        print(f"TRUNCATED ({finish_reason}) - saving anyway")
+                        truncated += 1
+                        # Fall through to save the truncated content
+                    else:
+                        print(f"TRUNCATED ({finish_reason})")
+                        truncated += 1
+                        log_error(
+                            {
+                                "timestamp": datetime.now().isoformat(),
+                                "category_id": cat_id,
+                                "category_name": cat_info.get("name"),
+                                "tip_number": i + 1,
+                                "provider": provider,
+                                "model": model or get_default_model(provider),
+                                "error": f"Response truncated (finish_reason: {finish_reason})",
+                                "content": tip_data.get("content", "")[
+                                    :500
+                                ],  # First 500 chars for debugging
+                            }
+                        )
+                        continue
 
                 file_path = save_tip(cat_info, tip_data.get("content"))
                 if not file_path:
@@ -585,9 +652,12 @@ def generate_sync(
                 )
 
     if truncated > 0:
-        print(
-            f"\nWarning: {truncated} tips were truncated and not saved (see errors.json)"
-        )
+        if save_truncated:
+            print(f"\nWarning: {truncated} tips were truncated but saved anyway")
+        else:
+            print(
+                f"\nWarning: {truncated} tips were truncated and not saved (see errors.json)"
+            )
 
     return generated
 
@@ -599,9 +669,13 @@ def generate_batch(
     api_key: str,
     model: Optional[str],
     wait: bool = True,
+    api_url: Optional[str] = None,
 ) -> int:
     """Generate tips using batch API (50% cheaper)."""
     requests = []
+
+    # Use default API URL if not provided
+    effective_api_url = api_url or get_default_api_url(provider)
 
     for cat_id in categories:
         if cat_id not in CATEGORIES:
@@ -625,17 +699,19 @@ def generate_batch(
         return 0
 
     print(f"Creating batch with {len(requests)} requests...")
+    if effective_api_url:
+        print(f"API URL: {effective_api_url}")
 
     try:
         if provider == "anthropic":
-            batch_id = anthropic_batch_create(requests, api_key)
+            batch_id = anthropic_batch_create(requests, api_key, effective_api_url)
         elif provider == "openai":
             batch_id = openai_batch_create(
-                requests, api_key, model or get_default_model("openai")
+                requests, api_key, model or get_default_model("openai"), effective_api_url
             )
         elif provider == "openrouter":
             batch_id = openrouter_batch_create(
-                requests, api_key, model or get_default_model("openrouter")
+                requests, api_key, model or get_default_model("openrouter"), effective_api_url
             )
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -652,11 +728,11 @@ def generate_batch(
         print("\nWaiting for batch to complete...")
         while True:
             if provider == "anthropic":
-                result = anthropic_batch_check(batch_id, api_key)
+                result = anthropic_batch_check(batch_id, api_key, effective_api_url)
             elif provider == "openrouter":
-                result = openrouter_batch_check(batch_id, api_key)
+                result = openrouter_batch_check(batch_id, api_key, effective_api_url)
             else:
-                result = openai_batch_check(batch_id, api_key)
+                result = openai_batch_check(batch_id, api_key, effective_api_url)
 
             print(f"  Status: {result['status']}")
 
@@ -1385,6 +1461,13 @@ def main():
         "--api-key", "-k", type=str, default=None, help="API key (or set in .env)"
     )
     parser.add_argument(
+        "--api-url",
+        "-u",
+        type=str,
+        default=None,
+        help="Custom API URL for OpenAI/Anthropic-compatible endpoints (or set TIPGEN_ANTHROPIC_API_URL / TIPGEN_OPENAI_API_URL in .env)",
+    )
+    parser.add_argument(
         "--no-wait", action="store_true", help="Don't wait for batch completion"
     )
     parser.add_argument(
@@ -1394,6 +1477,18 @@ def main():
         "--dry-run",
         action="store_true",
         help="Show what would be done without calling API",
+    )
+    parser.add_argument(
+        "--max-tokens",
+        "-t",
+        type=int,
+        default=4096,
+        help="Maximum tokens for response (default: 4096)",
+    )
+    parser.add_argument(
+        "--save-truncated",
+        action="store_true",
+        help="Save tips even if they are truncated (use with caution)",
     )
 
     args = parser.parse_args()
@@ -1513,7 +1608,13 @@ def main():
             )
             return
 
-    use_sync = args.provider == "openrouter"
+    # Use sync mode for openrouter (no batch support) or when custom API URL is used with openai
+    # (custom URLs like Together.xyz don't support OpenAI batch file upload API)
+    custom_api_url = args.api_url or get_default_api_url(args.provider)
+    use_sync = args.provider == "openrouter" or (args.provider == "openai" and custom_api_url)
+
+    if use_sync and args.provider == "openai" and custom_api_url:
+        print("Info: Custom API URL detected, using sync mode instead of batch")
 
     if args.dry_run:
         print(
@@ -1522,15 +1623,30 @@ def main():
         print(f"Provider: {args.provider}")
         print(f"Model: {args.model or get_default_model(args.provider)}")
         print(f"Mode: {'sync' if use_sync else 'batch'}")
+        if args.api_url or get_default_api_url(args.provider):
+            print(f"API URL: {args.api_url or get_default_api_url(args.provider)}")
         return
 
     if use_sync:
         generated = generate_sync(
-            categories, args.count, args.provider, api_key, args.model
+            categories,
+            args.count,
+            args.provider,
+            api_key,
+            args.model,
+            args.api_url,
+            args.max_tokens,
+            args.save_truncated,
         )
     else:
         generated = generate_batch(
-            categories, args.count, args.provider, api_key, args.model, not args.no_wait
+            categories,
+            args.count,
+            args.provider,
+            api_key,
+            args.model,
+            not args.no_wait,
+            args.api_url,
         )
 
     print(f"\nTotal tips generated: {generated}")
