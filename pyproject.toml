@@ -35,8 +35,8 @@ Issues = "https://github.com/drupaltools/tip-generator/issues"
 [project.scripts]
 drupaltools-tip-generator = "tip_generator:main"
 
-[tool.setuptools.packages.find]
-where = ["src"]
-
 [tool.setuptools.package-data]
 tip_generator = ["templates/*.html", "config.json"]
+
+[tool.setuptools]
+include-package-data = false
