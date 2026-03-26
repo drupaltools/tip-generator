@@ -100,6 +100,6 @@ pip install --index-url https://test.pypi.org/simple/ tip-generator
 ## Verify Installation
 
 ```bash
-pip install tip-generator
-drupal-tip-generator --help
+pipx install drupaltools-tip-generator
+drupaltools-tip-generator --help
 ```
