@@ -1,0 +1,27 @@
+pyproject.toml
+  30d1dd5377a175d1 1-43
+.github/workflows/publish.yml
+  30d1dd5377a175d1 1-35
+src/tip_generator/MANIFEST.in
+  30d1dd5377a175d1 1-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "3ec5b6257a8c461d76abe6deb49777a678277b3f",
+  "prompts": {
+    "30d1dd5377a175d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "830154b9-04e2-4d50-9949-e44c07fc1971",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 95,
+      "total_deletions": 12,
+      "accepted_lines": 83,
+      "overriden_lines": 0
+    }
+  }
+}
