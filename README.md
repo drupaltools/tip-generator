@@ -73,6 +73,8 @@ Get a tip from the pre-generated database instantly — no API call needed:
 | `-p, --provider` | LLM provider: `anthropic`, `openai`, `openrouter` |
 | `-m, --model` | Override default model |
 | `-u, --api-url` | Custom API URL for OpenAI/Anthropic-compatible endpoints |
+| `-t, --max-tokens` | Maximum tokens for response (default: 4096) |
+| `--save-truncated` | Save tips even if truncated (use with caution) |
 | `--no-wait` | Don't wait for batch completion |
 | `--dry-run` | Show what would be done without calling API |
 | `--list-categories` | List all available categories |
@@ -99,8 +101,14 @@ Get a tip from the pre-generated database instantly — no API call needed:
 # Use a specific model
 .venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4
 
-# Use a custom API URL (e.g., local LLM server)
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openai -u http://localhost:11434/v1
+# Use a custom API URL (e.g., Together.xyz, local LLM server)
+.venv/bin/python tip_generator.py -c 35 -n 5 -p openai -u https://api.together.xyz/v1
+
+# Increase max tokens for longer responses (avoid truncation)
+.venv/bin/python tip_generator.py -c 60 -n 20 -p openai --max-tokens 8192
+
+# Save tips even if truncated (use with caution)
+.venv/bin/python tip_generator.py -c 35 -n 5 -p openai --save-truncated
 ```
 
 ## Batch API Notes
