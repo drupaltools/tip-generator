@@ -1,8 +1,54 @@
 # Drupal Tip Generator
 
+[![PyPI](https://img.shields.io/pypi/v/drupaltools-tip-generator)](https://pypi.org/project/drupaltools-tip-generator/)
+[![License: GPL-2.0-or-later](https://img.shields.io/pypi/l/drupaltools-tip-generator)](LICENSE)
+
 Generate static MD tip files for the `drupal-tip` skill using various LLM providers.
 
-## Setup
+## Installation
+
+### Option 1: Install via pip (Recommended)
+
+```bash
+pip install drupaltools-tip-generator
+
+# Get a random tip
+drupaltools-tip-generator --random-tip
+
+# Generate new tips
+drupaltools-tip-generator -c 35 -n 5 -p openai
+```
+
+### Option 2: Install via skills CLI
+
+```bash
+# Install for OpenCode
+npx skills add drupaltools/tip-generator --agent opencode
+
+# Or install via shskills
+pip install shskills
+shskills install --url https://github.com/drupaltools/tip-generator --agent opencode
+```
+
+### Option 3: Clone and run from source
+
+```bash
+# Clone the repository
+git clone https://github.com/drupaltools/tip-generator.git ~/.claude/skills/drupal-tip
+cd ~/.claude/skills/drupal-tip
+
+# Create virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+
+# Install dependencies
+pip install -e .
+
+# Get a random tip
+python -m tip_generator --random-tip
+```
+
+## Setup (for generating new tips)
 
 ### 1. Create Virtual Environment
 
@@ -36,32 +82,32 @@ TIPGEN_OPENROUTER_API_KEY=sk-or-...
 Get a tip from the pre-generated database instantly — no API call needed:
 
 ```bash
-.venv/bin/python tip_generator.py --random-tip
-.venv/bin/python tip_generator.py --random-tip --tip-category core-service
-.venv/bin/python tip_generator.py --list-existing
+drupaltools-tip-generator --random-tip
+drupaltools-tip-generator --random-tip --tip-category core-service
+drupaltools-tip-generator --list-existing
 ```
 
 ### List Available Categories
 
 ```bash
-.venv/bin/python tip_generator.py --list-categories
+drupaltools-tip-generator --list-categories
 ```
 
 ### Generate Tips
 
 **Using Anthropic:**
 ```bash
-.venv/bin/python tip_generator.py -c 35 -n 5 -p anthropic
+drupaltools-tip-generator -c 35 -n 5 -p anthropic
 ```
 
 **Using OpenAI (batch mode - 50% cheaper):**
 ```bash
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openai
+drupaltools-tip-generator -c 35 -n 5 -p openai
 ```
 
 **Using OpenRouter:**
 ```bash
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter
+drupaltools-tip-generator -c 35 -n 5 -p openrouter
 ```
 
 ### Arguments
@@ -91,25 +137,25 @@ Get a tip from the pre-generated database instantly — no API call needed:
 
 ```bash
 # Generate 3 tips for category 35 (core-service)
-.venv/bin/python tip_generator.py -c 35 -n 3 -p openrouter
+drupaltools-tip-generator -c 35 -n 3 -p openrouter
 
 # Generate 5 tips for multiple categories
-.venv/bin/python tip_generator.py -c 35,36,37 -n 5 -p openrouter
+drupaltools-tip-generator -c 35,36,37 -n 5 -p openrouter
 
 # Generate 1 tip for ALL categories
-.venv/bin/python tip_generator.py -c all -n 1 -p openrouter
+drupaltools-tip-generator -c all -n 1 -p openrouter
 
 # Use a specific model
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4
+drupaltools-tip-generator -c 35 -n 5 -p openrouter -m anthropic/claude-opus-4
 
 # Use a custom API URL (e.g., Together.xyz, local LLM server)
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openai -u https://api.together.xyz/v1
+drupaltools-tip-generator -c 35 -n 5 -p openai -u https://api.together.xyz/v1
 
 # Increase max tokens for longer responses (avoid truncation)
-.venv/bin/python tip_generator.py -c 60 -n 20 -p openai --max-tokens 8192
+drupaltools-tip-generator -c 60 -n 20 -p openai --max-tokens 8192
 
 # Save tips even if truncated (use with caution)
-.venv/bin/python tip_generator.py -c 35 -n 5 -p openai --save-truncated
+drupaltools-tip-generator -c 35 -n 5 -p openai --save-truncated
 ```
 
 ## Batch API Notes
@@ -125,8 +171,8 @@ Get a tip from the pre-generated database instantly — no API call needed:
 If you ran batch mode with `--no-wait`:
 
 ```bash
-.venv/bin/python tip_generator.py --check-batch BATCH_ID -p anthropic
-.venv/bin/python tip_generator.py --check-batch BATCH_ID -p openai --save-results
+drupaltools-tip-generator --check-batch BATCH_ID -p anthropic
+drupaltools-tip-generator --check-batch BATCH_ID -p openai --save-results
 ```
 
 ## Output
@@ -186,7 +232,7 @@ To add or modify categories, edit `config.json` directly - no code changes neede
 
 ```bash
 # Dry run to verify configuration
-.venv/bin/python tip_generator.py -c 35 -n 1 -p openrouter --dry-run
+drupaltools-tip-generator -c 35 -n 1 -p openrouter --dry-run
 ```
 
 ## Validation
@@ -195,13 +241,13 @@ Validate generated tips for formatting issues, truncation, and quality:
 
 ```bash
 # Validate a single file
-.venv/bin/python tip_generator.py --validate --validate-file tips/core-service/a1b2c3d4.md
+drupaltools-tip-generator --validate --validate-file tips/core-service/a1b2c3d4.md
 
 # Validate all tips in a category
-.venv/bin/python tip_generator.py --validate --validate-category core-service
+drupaltools-tip-generator --validate --validate-category core-service
 
 # Validate ALL tips across all categories
-.venv/bin/python tip_generator.py --validate --validate-all
+drupaltools-tip-generator --validate --validate-all
 ```
 
 ### Validation Checks
