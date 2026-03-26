@@ -1,0 +1,42 @@
+SKILL.md
+  c3e757a0de5fde63 8,10,12,14-15,18,20,23,26,32-62,66,68,71,73-74,76-78,80,83-84,86-87,89-90,93
+tip_generator.py
+  30d1dd5377a175d1 67-72,80-82,116-118,206-207,210-216,235,237-240,263-264,267-270,307,309-312,350,354,356,387,393,395,438-439,442-445,448,457-458,461-464,467,484-485,490,492,499,540-547,553-555,565-567,576-578,580,583-585,587,591,599-620,655-660,672,677-679,702-703,707,710,714,731,733,735,1464-1469,1481-1492,1611-1617,1626-1627,1632-1639,1643-1649
+.env.example
+  30d1dd5377a175d1 8-9,14-15
+README.md
+  30d1dd5377a175d1 75,101-103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "1b78561fb91f947bc12727b9aa69c1ce21671558",
+  "prompts": {
+    "30d1dd5377a175d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "830154b9-04e2-4d50-9949-e44c07fc1971",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 203,
+      "total_deletions": 79,
+      "accepted_lines": 179,
+      "overriden_lines": 0
+    },
+    "c3e757a0de5fde63": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "c3d10471-447f-42ca-9117-e43980ad26af",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 77,
+      "total_deletions": 211,
+      "accepted_lines": 62,
+      "overriden_lines": 0
+    }
+  }
+}
