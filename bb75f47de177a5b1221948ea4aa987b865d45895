@@ -1,0 +1,23 @@
+.github/workflows/publish.yml
+  9f7d05a8e6eeef79 22-24
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "bb75f47de177a5b1221948ea4aa987b865d45895",
+  "prompts": {
+    "9f7d05a8e6eeef79": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-da794f9d-480b-48da-998c-65aac29d5d6f",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 0,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
