@@ -1,0 +1,38 @@
+src/tip_generator/__init__.py
+  dcd2597d379027e3 6,464-468,487-491,518-522,614-616,619-623,627-629,632-636,640-644,763-766,770-773,1683-1685
+pyproject.toml
+  de9525aa18bed3f3 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "92b3e07ca5905250f5bf43bbf9ea24e6f7cd4e59",
+  "prompts": {
+    "dcd2597d379027e3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-80fd2603-1b62-441d-bd87-a490badbb4d9",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 48,
+      "total_deletions": 12,
+      "accepted_lines": 48,
+      "overriden_lines": 0
+    },
+    "de9525aa18bed3f3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-c6508d61-bfbe-4b84-9171-d244e8c57c0b",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
