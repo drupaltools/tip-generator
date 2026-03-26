@@ -1,0 +1,5 @@
+include config.json
+recursive-include tips
+recursive-include templates
+recursive-exclude *.pyc
+recursive-exclude __pycache__

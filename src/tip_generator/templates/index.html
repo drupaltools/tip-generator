@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drupal Tip Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Drupal Tip Viewer</h1>
+            <p class="subtitle">{{ total_tips }} tips across {{ categories|length }} categories</p>
+        </header>
+
+        <div class="controls">
+            <select id="categorySelect">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.name }}">{{ cat.name }} ({{ cat.count }})</option>
+                {% endfor %}
+            </select>
+            <button onclick="loadRandomTip()">Get Random Tip</button>
+            <button class="theme-btn" onclick="toggleTheme()" title="Toggle dark/light mode" id="themeBtn">🌙</button>
+        </div>
+
+        <div id="tipsContainer"></div>
+
+        <p class="stats">Tip data stored locally at <code>{{ tips_dir|default('./tips') }}</code></p>
+        <p class="footer"><a href="{{ url_for('about') }}">About</a> • <a href="https://github.com/drupaltools/drupal-tip-generator" target="_blank" rel="noopener">drupaltools/drupal-tip-generator</a></p>
+    </div>
+
+    <script>
+        const tipsContainer = document.getElementById('tipsContainer');
+        const categorySelect = document.getElementById('categorySelect');
+
+        function formatContent(content) {
+            let html = content
+                .replace(/```(\w+)?\n([\s\S]*?)```/g, '<pre><code>$2</code></pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^/, '<p>')
+                .replace(/$/, '</p>');
+            return html;
+        }
+
+        function renderTip(tip) {
+            return `
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-category">${tip.category}</span>
+                        ${tip.path ? `<span class="tip-uuid">
+                            <button class="ide-btn" onclick="location.href='cursor://file/${tip.path}'">Cursor</button>
+                            <button class="ide-btn" onclick="location.href='windsurf://open?path=${encodeURIComponent(tip.path)}'">WindSurf</button>
+                            #${tip.uuid}
+                        </span>` : ''}
+                    </div>
+                    ${tip.title ? `<h3 class="tip-title">${tip.title}</h3>` : ''}
+                    <div class="tip-content">${formatContent(tip.content)}</div>
+                </div>
+            `;
+        }
+
+        function loadRandomTip() {
+            tipsContainer.innerHTML = '<div class="loading">Loading...</div>';
+            const category = categorySelect.value;
+            const url = '/api/random' + (category ? `?category=${category}` : '');
+            
+            fetch(url)
+                .then(r => r.json())
+                .then(tip => {
+                    if (tip.error) {
+                        tipsContainer.innerHTML = `<div class="empty">${tip.error}</div>`;
+                    } else {
+                        tipsContainer.innerHTML = renderTip(tip);
+                    }
+                })
+                .catch(e => {
+                    tipsContainer.innerHTML = `<div class="empty">Error loading tip: ${e}</div>`;
+                });
+        }
+
+        function toggleTheme() {
+            const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+            document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+            document.getElementById('themeBtn').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        }
+
+        (function() {
+            const saved = localStorage.getItem('theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', saved);
+            document.getElementById('themeBtn').textContent = saved === 'dark' ? '🌙' : '☀️';
+        })();
+    </script>
+</body>
+</html>

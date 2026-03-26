@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "setuptools-scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tip-generator"
+version = "0.1.0"
+description = "Generate static MD tip files for Drupal development tips using various LLM providers"
+readme = "README.md"
+license = {text = "MIT", file = "LICENSE"}
+authors = [
+    {name = "Drupal Tools Team", email = "info@drupaltools.com"}
+]
+ keywords = ["drupal", "tips", "llm", "generator", "ai", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+]
+ requires-python = ">=3.11"
+dependencies = [
+    "anthropic>=0.18.0",
+    "openai>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/drupaltools/tip-generator"
+Repository = "https://github.com/drupaltools/tip-generator.git"
+Issues = "https://github.com/drupaltools/tip-generator/issues"
+
+[project.scripts]
+drupal-tip-generator = "tip_generator:main"
+
+[tool.setuptools]
+packages = ["tip_generator"]
+
+[tool.setuptools.package-data]
+tip_generator = ["config.json", "tips/**"]
