@@ -1,3 +1,27 @@
+Metadata-Version: 2.4
+Name: tip-generator
+Version: 0.1.0
+Summary: Generate static MD tip files for Drupal development tips using various LLM providers
+Author-email: Drupal Tools Team <info@drupaltools.com>
+License-Expression: GPL-2.0-or-later
+Project-URL: Homepage, https://github.com/drupaltools/tip-generator
+Project-URL: Repository, https://github.com/drupaltools/tip-generator.git
+Project-URL: Issues, https://github.com/drupaltools/tip-generator/issues
+Keywords: drupal,tips,llm,generator,ai,cli
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Topic :: Software Development
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: anthropic>=0.18.0
+Requires-Dist: openai>=1.0.0
+Dynamic: license-file
+
 # Drupal Tip Generator
 
 Generate static MD tip files for the `drupal-tip` skill using various LLM providers.

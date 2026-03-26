@@ -1,0 +1,2 @@
+[console_scripts]
+drupal-tip-generator = tip_generator:main

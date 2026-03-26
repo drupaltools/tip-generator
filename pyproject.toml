@@ -7,7 +7,7 @@ name = "tip-generator"
 version = "0.1.0"
 description = "Generate static MD tip files for Drupal development tips using various LLM providers"
 readme = "README.md"
-license = {text = "MIT", file = "LICENSE"}
+license = "GPL-2.0-or-later"
 authors = [
     {name = "Drupal Tools Team", email = "info@drupaltools.com"}
 ]
@@ -16,7 +16,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -36,8 +35,8 @@ Issues = "https://github.com/drupaltools/tip-generator/issues"
 [project.scripts]
 drupal-tip-generator = "tip_generator:main"
 
-[tool.setuptools]
-packages = ["tip_generator"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.setuptools.package-data]
-tip_generator = ["config.json", "tips/**"]
+tip_generator = ["templates/*.html", "config.json"]

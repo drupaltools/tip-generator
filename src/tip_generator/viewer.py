@@ -18,7 +18,25 @@ from typing import Optional, List, Dict, Any
 from flask import Flask, render_template, jsonify, request
 
 SCRIPT_DIR = Path(__file__).parent
-TIPS_DIR = SCRIPT_DIR / "tips"
+
+
+def get_tips_dir(cli_path: Optional[str] = None) -> Path:
+    """Get tips directory with priority: CLI > env var > default."""
+    # 1. CLI argument (highest priority)
+    if cli_path:
+        return Path(cli_path).expanduser().resolve()
+
+    # 2. Environment variable
+    env_path = os.environ.get("TIPGEN_TIPS_DIR")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    # 3. Default (lowest priority)
+    return SCRIPT_DIR / "tips"
+
+
+# Default tips directory (can be overridden via CLI/env)
+TIPS_DIR = get_tips_dir()
 
 app = Flask(
     __name__, static_folder=str(SCRIPT_DIR / "static"), static_url_path="/static"
@@ -171,11 +189,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Drupal Tip Viewer Web UI")
     parser.add_argument("--port", type=int, default=5000, help="Port to run on")
     parser.add_argument("--host", default="127.0.0.1", help="Host to bind to")
-    parser.add_argument("--tips-dir", type=str, default=None, help="Tips directory")
+    parser.add_argument("--tips-dir", type=str, default=None, help="Tips directory (or set TIPGEN_TIPS_DIR env var)")
     parser.add_argument("--debug", action="store_true", help="Enable debug mode")
     args = parser.parse_args()
 
-    if args.tips_dir:
-        TIPS_DIR = Path(args.tips_dir)
+    # Update TIPS_DIR based on CLI argument (overrides default/env)
+    global TIPS_DIR
+    TIPS_DIR = get_tips_dir(args.tips_dir)
 
     app.run(host=args.host, port=args.port, debug=args.debug)

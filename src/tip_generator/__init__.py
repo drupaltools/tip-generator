@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """
 Drupal Tip Generator - Generate static MD files for the drupal-tip skill.
+"""
 
-Usage:
+__version__ = "0.1.0"
+
+"""
     python tip_generator.py --random-tip              # Get a random existing tip (fast!)
     python tip_generator.py --category 35 --count 5 --provider anthropic
     python tip_generator.py --category all --count 3 --provider openai
@@ -131,7 +134,29 @@ CONFIG = load_config()
 # Convert categories from string keys to int keys for backward compatibility
 CATEGORIES = {int(k): v for k, v in CONFIG["categories"].items()}
 
-TIPS_DIR = SCRIPT_DIR / "tips"
+
+def get_tips_dir(cli_path: Optional[str] = None) -> Path:
+    """Get tips directory with priority: CLI > env var > config > default."""
+    # 1. CLI argument (highest priority)
+    if cli_path:
+        return Path(cli_path).expanduser().resolve()
+
+    # 2. Environment variable
+    env_path = os.environ.get("TIPGEN_TIPS_DIR")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    # 3. Config file setting
+    config_path = CONFIG.get("tips_dir")
+    if config_path:
+        return Path(config_path).expanduser().resolve()
+
+    # 4. Default (lowest priority)
+    return SCRIPT_DIR / "tips"
+
+
+# Default tips directory (can be overridden via CLI/env/config)
+TIPS_DIR = get_tips_dir()
 
 
 def get_prompt_for_category(
@@ -1490,8 +1515,18 @@ def main():
         action="store_true",
         help="Save tips even if they are truncated (use with caution)",
     )
+    parser.add_argument(
+        "--tips-dir",
+        type=str,
+        default=None,
+        help="Custom tips directory (or set TIPGEN_TIPS_DIR env var or tips_dir in config.json)",
+    )
 
     args = parser.parse_args()
+
+    # Update TIPS_DIR based on CLI argument (overrides default/env/config)
+    global TIPS_DIR
+    TIPS_DIR = get_tips_dir(args.tips_dir)
 
     if args.list_categories:
         list_categories()
