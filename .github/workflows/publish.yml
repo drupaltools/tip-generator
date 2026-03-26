@@ -19,6 +19,9 @@ jobs:
       - name: Install build dependencies
         run: pip install --upgrade build twine
 
+      - name: Clean previous builds
+        run: rm -rf dist/ build/ *.egg-info
+
       - name: Build package
         run: python -m build
 
