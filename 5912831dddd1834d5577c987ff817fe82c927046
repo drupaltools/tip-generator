@@ -1,0 +1,33 @@
+PUBLISH.md
+  30d1dd5377a175d1 1-105
+pyproject.toml
+  30d1dd5377a175d1 10,38-39,42
+src/tip_generator/viewer.py
+  30d1dd5377a175d1 21-39,192,196-198
+src/tip_generator/__init__.py
+  30d1dd5377a175d1 4,6,8,137-159,1518-1523,1527-1529
+.env.example
+  30d1dd5377a175d1 20-22
+README.md
+  30d1dd5377a175d1 77,164,172-179
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "5912831dddd1834d5577c987ff817fe82c927046",
+  "prompts": {
+    "30d1dd5377a175d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "830154b9-04e2-4d50-9949-e44c07fc1971",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 190,
+      "total_deletions": 18,
+      "accepted_lines": 185,
+      "overriden_lines": 0
+    }
+  }
+}
