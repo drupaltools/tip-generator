@@ -1,0 +1,53 @@
+pyproject.toml
+  30d1dd5377a175d1 6,36
+.github/workflows/publish.yml
+  0ced58d5a86f4765 26-28
+.gitignore
+  e7be02a68f591671 26-30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "8d50672506fd7b554df80a0338773e2c373132d9",
+  "prompts": {
+    "0ced58d5a86f4765": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-ac5132f8-58b3-4f8f-8ef7-1fdd578278c4",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 9,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    },
+    "30d1dd5377a175d1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "830154b9-04e2-4d50-9949-e44c07fc1971",
+        "model": "glm-5"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 2,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    },
+    "e7be02a68f591671": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-11a43109-cf09-47d5-98b2-5724e419b62c",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 0,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    }
+  }
+}
