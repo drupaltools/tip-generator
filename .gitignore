@@ -23,3 +23,8 @@ ENV/
 .vscode/
 *.swp
 *.swo
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
