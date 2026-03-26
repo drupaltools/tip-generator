@@ -1,0 +1,65 @@
+README.md
+  78b5c4ffd89c56af 8-51
+  6a7cb8a1f4477ee1 85-87,93
+  4b7691348ef57bb8 100,105,110,140,143,146,149,152,155,158,174-175,235,244,247,250
+  bf205fd4901d5f7b 3-5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.19",
+  "base_commit_sha": "3d3266ef6bb81fbc392a74cbeacdd04daead7dd5",
+  "prompts": {
+    "4b7691348ef57bb8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-3a7e1bfe-a70b-4a8c-b03f-2f5f6db50a7b",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 16,
+      "total_deletions": 16,
+      "accepted_lines": 16,
+      "overriden_lines": 0
+    },
+    "6a7cb8a1f4477ee1": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-baa51173-1019-4f6e-8da0-31eba7481309",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 4,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    },
+    "78b5c4ffd89c56af": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-a015be7f-bd07-43a3-bfbc-4389a41b32f5",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 44,
+      "total_deletions": 1,
+      "accepted_lines": 44,
+      "overriden_lines": 0
+    },
+    "bf205fd4901d5f7b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2d4114fbaffeGCpUnRDtmzHV6e-f7299dbe-c9ac-494c-8ad9-e709452d5457",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 0,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    }
+  }
+}
