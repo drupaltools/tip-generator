@@ -1,7 +1,6 @@
 # Drupal Tip Generator
 
 [![PyPI](https://img.shields.io/pypi/v/drupaltools-tip-generator)](https://pypi.org/project/drupaltools-tip-generator/)
-[![License: GPL-2.0-or-later](https://img.shields.io/pypi/l/drupaltools-tip-generator)](LICENSE)
 
 Generate static MD tip files for the `drupaltools-tip-generator` skill using various LLM providers.
 
