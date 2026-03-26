@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/drupaltools-tip-generator)](https://pypi.org/project/drupaltools-tip-generator/)
 [![License: GPL-2.0-or-later](https://img.shields.io/pypi/l/drupaltools-tip-generator)](LICENSE)
 
-Generate static MD tip files for the `drupal-tip` skill using various LLM providers.
+Generate static MD tip files for the `drupaltools-tip-generator` skill using various LLM providers.
 
 ## Installation
 
@@ -34,8 +34,8 @@ shskills install --url https://github.com/drupaltools/tip-generator --agent open
 
 ```bash
 # Clone the repository
-git clone https://github.com/drupaltools/tip-generator.git ~/.claude/skills/drupal-tip
-cd ~/.claude/skills/drupal-tip
+git clone https://github.com/drupaltools/tip-generator.git ~/.claude/skills/drupaltools-tip-generator
+cd ~/.claude/skills/drupaltools-tip-generator
 
 # Create virtual environment
 python3 -m venv .venv
@@ -53,7 +53,7 @@ python -m tip_generator --random-tip
 ### 1. Create Virtual Environment
 
 ```bash
-cd ~/.claude/skills/drupal-tip
+cd ~/.claude/skills/drupaltools-tip-generator
 python3 -m venv .venv
 source .venv/bin/activate
 pip install openai anthropic

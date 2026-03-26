@@ -14,7 +14,7 @@ import html2text
 SCRIPT_DIR = Path(__file__).parent
 CACHE_DIR = SCRIPT_DIR / "cache-data" / "url_cache"
 USER_AGENT = (
-    "DrupalTipGenerator/1.0 (https://github.com/drupaltools/drupal-tip-generator)"
+    "DrupalTipGenerator/1.0 (https://github.com/drupaltools/drupaltools-tip-generator)"
 )
 FETCH_TIMEOUT = 30
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-Drupal Tip Generator - Generate static MD files for the drupal-tip skill.
+Drupal Tip Generator - Generate static MD files for the drupaltools-tip-generator skill.
 """
 
 __version__ = "0.2.0"
 
 """
-    python tip_generator.py --random-tip              # Get a random existing tip (fast!)
-    python tip_generator.py --category 35 --count 5 --provider anthropic
+    drupaltools-tip-generator --random-tip              # Get a random existing tip (fast!)
+    drupaltools-tip-generator --category 35 --count 5 --provider anthropic
     python tip_generator.py --category all --count 3 --provider openai
     python tip_generator.py --list-categories
 

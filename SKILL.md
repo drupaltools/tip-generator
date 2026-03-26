@@ -1,11 +1,11 @@
 ---
-name: drupal-tip
+name: drupaltools-tip-generator
 description: Show a random "tip of the day" related to Drupal development and its ecosystem. Use this skill whenever the user asks for a tip, hint, or suggestion related to Drupal — e.g. "drupal tip", "give me a Drupal tip", "tip of the day", "surprise me with Drupal", "what should I learn today", or simply calls the skill by name. Also trigger when the user seems idle or asks for inspiration in a Drupal context.
 license: GPL-2.0-or-later
 compatibility: opencode
 author: Drupal Tools Team <info@drupaltools.com>
 metadata:
-  homepage: https://github.com/drupaltools/tip-generator
+  homepage: https://github.com/drupaltools/drupaltools-tip-generator
   pypi: drupaltools-tip-generator
 ---
 
@@ -40,8 +40,8 @@ Copy this skill to your OpenCode skills directory:
 
 ```bash
 # Project-local (recommended)
-mkdir -p .agents/skills/drupal-tip
-cp SKILL.md .agents/skills/drupal-tip/
+mkdir -p .agents/skills/drupaltools-tip-generator
+cp SKILL.md .agents/skills/drupaltools-tip-generator/
 
 # Or global
 mkdir -p ~/.config/opencode/skills/drupal-tip
@@ -59,7 +59,7 @@ drupaltools-tip-generator --random-tip
 Or if running from the source directory:
 
 ```bash
-cd ~/.claude/skills/drupal-tip && .venv/bin/python tip_generator.py --random-tip
+cd ~/.claude/skills/drupaltools-tip-generator && .venv/bin/python tip_generator.py --random-tip
 ```
 
 2. Display the output exactly as returned (includes the tip text and any code blocks).
@@ -128,7 +128,7 @@ drupaltools-tip-generator -c all -n 3 -p openai
 Or if running from source:
 
 ```bash
-cd ~/.claude/skills/drupal-tip
+cd ~/.claude/skills/drupaltools-tip-generator
 
 # Install dependencies
 pip install -e .
