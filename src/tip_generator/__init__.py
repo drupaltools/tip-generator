@@ -3,7 +3,7 @@
 Drupal Tip Generator - Generate static MD files for the drupal-tip skill.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 """
     python tip_generator.py --random-tip              # Get a random existing tip (fast!)
@@ -461,7 +461,11 @@ def openrouter_batch_create(
 
 
 def call_anthropic_sync(
-    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+    prompt: str,
+    api_key: str,
+    model: str = None,
+    api_url: str = None,
+    max_tokens: int = 4096,
 ) -> dict:
     """Call Anthropic API synchronously."""
     client_kwargs = {"api_key": api_key}
@@ -480,7 +484,11 @@ def call_anthropic_sync(
 
 
 def call_openai_sync(
-    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+    prompt: str,
+    api_key: str,
+    model: str = None,
+    api_url: str = None,
+    max_tokens: int = 4096,
 ) -> dict:
     """Call OpenAI API synchronously."""
     client_kwargs = {"api_key": api_key}
@@ -507,7 +515,11 @@ def call_openai_sync(
 
 
 def call_openrouter_sync(
-    prompt: str, api_key: str, model: str = None, api_url: str = None, max_tokens: int = 4096
+    prompt: str,
+    api_key: str,
+    model: str = None,
+    api_url: str = None,
+    max_tokens: int = 4096,
 ) -> dict:
     """Call OpenRouter API synchronously."""
     client = OpenAI(
@@ -599,21 +611,37 @@ def generate_sync(
             try:
                 if provider == "anthropic":
                     if not HAS_ANTHROPIC:
-                        print("Error: Anthropic package not installed. Install with: pip install anthropic")
+                        print(
+                            "Error: Anthropic package not installed. Install with: pip install anthropic"
+                        )
                         return 0
                     tip_data = call_anthropic_sync(
-                        prompt, api_key, model or get_default_model("anthropic"), effective_api_url, max_tokens
+                        prompt,
+                        api_key,
+                        model or get_default_model("anthropic"),
+                        effective_api_url,
+                        max_tokens,
                     )
                 elif provider == "openai":
                     if not HAS_OPENAI:
-                        print("Error: OpenAI package not installed. Install with: pip install openai")
+                        print(
+                            "Error: OpenAI package not installed. Install with: pip install openai"
+                        )
                         return 0
                     tip_data = call_openai_sync(
-                        prompt, api_key, model or get_default_model("openai"), effective_api_url, max_tokens
+                        prompt,
+                        api_key,
+                        model or get_default_model("openai"),
+                        effective_api_url,
+                        max_tokens,
                     )
                 elif provider == "openrouter":
                     tip_data = call_openrouter_sync(
-                        prompt, api_key, model or get_default_model("openrouter"), effective_api_url, max_tokens
+                        prompt,
+                        api_key,
+                        model or get_default_model("openrouter"),
+                        effective_api_url,
+                        max_tokens,
                     )
                 else:
                     raise ValueError(f"Unknown provider: {provider}")
@@ -732,11 +760,17 @@ def generate_batch(
             batch_id = anthropic_batch_create(requests, api_key, effective_api_url)
         elif provider == "openai":
             batch_id = openai_batch_create(
-                requests, api_key, model or get_default_model("openai"), effective_api_url
+                requests,
+                api_key,
+                model or get_default_model("openai"),
+                effective_api_url,
             )
         elif provider == "openrouter":
             batch_id = openrouter_batch_create(
-                requests, api_key, model or get_default_model("openrouter"), effective_api_url
+                requests,
+                api_key,
+                model or get_default_model("openrouter"),
+                effective_api_url,
             )
         else:
             raise ValueError(f"Unknown provider: {provider}")
@@ -1646,7 +1680,9 @@ def main():
     # Use sync mode for openrouter (no batch support) or when custom API URL is used with openai
     # (custom URLs like Together.xyz don't support OpenAI batch file upload API)
     custom_api_url = args.api_url or get_default_api_url(args.provider)
-    use_sync = args.provider == "openrouter" or (args.provider == "openai" and custom_api_url)
+    use_sync = args.provider == "openrouter" or (
+        args.provider == "openai" and custom_api_url
+    )
 
     if use_sync and args.provider == "openai" and custom_api_url:
         print("Info: Custom API URL detected, using sync mode instead of batch")
