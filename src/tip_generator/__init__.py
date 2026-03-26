@@ -29,17 +29,54 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Tuple
 
-# Load .env file from script directory
 SCRIPT_DIR = Path(__file__).parent
-ENV_FILE = SCRIPT_DIR / ".env"
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+SKILL_PATH = None
+
+
+def set_skill_path(path: str) -> None:
+    global SKILL_PATH
+    SKILL_PATH = Path(path)
+    reload_env()
+    reload_config()
+
+
+def get_env_file_path() -> Path:
+    env_path = os.environ.get("TIPGEN_ENV_FILE")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+
+    candidates = [
+        Path(SKILL_PATH) / ".env" if SKILL_PATH else None,
+        PROJECT_ROOT / ".env",
+        SCRIPT_DIR / ".env",
+    ]
+    for candidate in candidates:
+        if candidate and candidate.exists():
+            return candidate
+    return SCRIPT_DIR / ".env"
+
+
+def get_config_file_path() -> Path:
+    config_path = os.environ.get("TIPGEN_CONFIG_FILE")
+    if config_path:
+        return Path(config_path).expanduser().resolve()
+
+    candidates = [
+        Path(SKILL_PATH) / "config.json" if SKILL_PATH else None,
+        PROJECT_ROOT / "config.json",
+        SCRIPT_DIR / "config.json",
+    ]
+    for candidate in candidates:
+        if candidate and candidate.exists():
+            return candidate
+    return SCRIPT_DIR / "config.json"
+
+
+ENV_FILE = get_env_file_path()
 
 
 def load_env_file():
-    """Load environment variables from .env file in script directory.
-
-    All variables in .env should use TIPGEN_ prefix to avoid overriding
-    global environment variables.
-    """
     if ENV_FILE.exists():
         with open(ENV_FILE) as f:
             for line in f:
@@ -51,7 +88,12 @@ def load_env_file():
                     os.environ[key] = value
 
 
-# Load .env on import
+def reload_env():
+    global ENV_FILE
+    ENV_FILE = get_env_file_path()
+    load_env_file()
+
+
 load_env_file()
 
 
@@ -114,45 +156,75 @@ except ImportError:
     HAS_OPENAI = False
 
 # Config file path
-CONFIG_FILE = SCRIPT_DIR / "config.json"
+CONFIG_FILE = get_config_file_path()
 
-# Project URL for HTTP headers
 PROJECT_URL = "https://github.com/drupaltools/tip-generator"
 
 
 def load_config() -> dict:
-    """Load configuration from JSON file."""
     if not CONFIG_FILE.exists():
         raise FileNotFoundError(f"Config file not found: {CONFIG_FILE}")
     with open(CONFIG_FILE) as f:
         return json.load(f)
 
 
-# Load config
-CONFIG = load_config()
+def reload_config() -> dict:
+    global CONFIG_FILE, CONFIG, CATEGORIES
+    CONFIG_FILE = get_config_file_path()
+    CONFIG = load_config()
+    CATEGORIES = {int(k): v for k, v in CONFIG["categories"].items()}
+    return CONFIG
 
-# Convert categories from string keys to int keys for backward compatibility
+
+CONFIG = load_config()
 CATEGORIES = {int(k): v for k, v in CONFIG["categories"].items()}
 
 
+def set_skill_path(path: str) -> None:
+    global SKILL_PATH
+    SKILL_PATH = Path(path)
+    reload_env()
+    reload_config()
+
+
 def get_tips_dir(cli_path: Optional[str] = None) -> Path:
-    """Get tips directory with priority: CLI > env var > config > default."""
-    # 1. CLI argument (highest priority)
     if cli_path:
         return Path(cli_path).expanduser().resolve()
 
-    # 2. Environment variable
     env_path = os.environ.get("TIPGEN_TIPS_DIR")
     if env_path:
         return Path(env_path).expanduser().resolve()
 
-    # 3. Config file setting
     config_path = CONFIG.get("tips_dir")
     if config_path:
         return Path(config_path).expanduser().resolve()
 
-    # 4. Default (lowest priority)
-    return SCRIPT_DIR / "tips"
+    candidates = [
+        Path.home() / ".drupaltools" / "tips",
+        Path(SKILL_PATH) / "tips" if SKILL_PATH else None,
+        Path.cwd() / "tips",
+        PROJECT_ROOT / "tips",
+    ]
+
+    for candidate in candidates:
+        if candidate and candidate.exists() and candidate.is_dir():
+            if list(candidate.rglob("*.md")):
+                return candidate
+
+    for candidate in candidates:
+        if candidate and candidate.exists() and candidate.is_dir():
+            return candidate
+
+    return Path.home() / ".drupaltools" / "tips"
+
+
+def get_default_generate_dir() -> Path:
+    if SKILL_PATH:
+        return Path(SKILL_PATH) / "tips"
+    return PROJECT_ROOT / "tips"
+    if SKILL_PATH:
+        return Path(SKILL_PATH) / "tips"
+    return PROJECT_ROOT / "tips"
 
 
 # Default tips directory (can be overridden via CLI/env/config)
@@ -182,16 +254,24 @@ def get_prompt_for_category(
 
 
 def generate_file_id() -> str:
-    """Generate an 8-character lowercase random ID."""
     return uuid.uuid4().hex[:8]
 
 
-def save_tip(cat_info: dict, content: Optional[str]) -> Optional[Path]:
-    """Save a tip to the appropriate file."""
+def get_relative_path(path: Path, base: Path) -> Path:
+    try:
+        return path.relative_to(base)
+    except ValueError:
+        return path
+
+
+def save_tip(
+    cat_info: dict, content: Optional[str], tips_dir: Optional[Path] = None
+) -> Optional[Path]:
     if not content:
         return None
 
-    category_dir = TIPS_DIR / cat_info["name"]
+    target_dir = tips_dir or get_default_generate_dir()
+    category_dir = target_dir / cat_info["name"]
     category_dir.mkdir(parents=True, exist_ok=True)
 
     file_id = generate_file_id()
@@ -582,13 +662,13 @@ def generate_sync(
     api_url: Optional[str] = None,
     max_tokens: int = 4096,
     save_truncated: bool = False,
+    tips_dir: Optional[Path] = None,
 ) -> int:
-    """Generate tips synchronously (one at a time)."""
     generated = 0
     truncated = 0
 
-    # Use default API URL if not provided
     effective_api_url = api_url or get_default_api_url(provider)
+    target_dir = tips_dir or get_default_generate_dir()
 
     for cat_id in categories:
         if cat_id not in CATEGORIES:
@@ -672,7 +752,7 @@ def generate_sync(
                         )
                         continue
 
-                file_path = save_tip(cat_info, tip_data.get("content"))
+                file_path = save_tip(cat_info, tip_data.get("content"), target_dir)
                 if not file_path:
                     print("ERROR: Empty response content, skipping")
                     log_error(
@@ -687,7 +767,7 @@ def generate_sync(
                         }
                     )
                     continue
-                print(f"Saved to {file_path.relative_to(SCRIPT_DIR)}")
+                print(f"Saved to {get_relative_path(file_path, PROJECT_ROOT)}")
                 generated += 1
 
             except Exception as e:
@@ -723,12 +803,12 @@ def generate_batch(
     model: Optional[str],
     wait: bool = True,
     api_url: Optional[str] = None,
+    tips_dir: Optional[Path] = None,
 ) -> int:
-    """Generate tips using batch API (50% cheaper)."""
     requests = []
 
-    # Use default API URL if not provided
     effective_api_url = api_url or get_default_api_url(provider)
+    target_dir = tips_dir or get_default_generate_dir()
 
     for cat_id in categories:
         if cat_id not in CATEGORIES:
@@ -838,7 +918,7 @@ def generate_batch(
                     )
 
                     if cat_info:
-                        file_path = save_tip(cat_info, res.get("content"))
+                        file_path = save_tip(cat_info, res.get("content"), target_dir)
                         if file_path:
                             print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
                             generated += 1
@@ -855,9 +935,12 @@ def generate_batch(
 
 
 def check_batch_status(
-    batch_id: str, provider: str, api_key: str, save: bool = False
+    batch_id: str,
+    provider: str,
+    api_key: str,
+    save: bool = False,
+    tips_dir: Optional[Path] = None,
 ) -> None:
-    """Check batch status and optionally save results."""
     print(f"Checking batch {batch_id}...")
 
     try:
@@ -872,6 +955,8 @@ def check_batch_status(
         print(f"Complete: {result['complete']}")
         print(f"Results: {len(result['results'])}")
 
+        target_dir = tips_dir or get_default_generate_dir()
+
         if result["complete"] and save and result["results"]:
             print("\nSaving results...")
             for res in result["results"]:
@@ -882,7 +967,7 @@ def check_batch_status(
                 )
 
                 if cat_info:
-                    file_path = save_tip(cat_info, res.get("content"))
+                    file_path = save_tip(cat_info, res.get("content"), target_dir)
                     if file_path:
                         print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
                     else:
