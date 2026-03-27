@@ -1524,7 +1524,7 @@ def main():
 
     # Mutually exclusive group for main operations
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--category", "-c", type=str, help="Category number(s) or 'all'")
+    group.add_argument("--category", "-c", type=str, help="Category number(s), slug name(s), or 'all'")
     group.add_argument(
         "--list-categories", action="store_true", help="List all categories"
     )
@@ -1744,8 +1744,16 @@ def main():
         try:
             categories = [int(c.strip()) for c in args.category.split(",")]
         except ValueError:
-            print("Error: Invalid category format. Use numbers or 'all'")
-            return
+            # Try matching by slug name
+            slug_to_id = {v["name"]: k for k, v in CATEGORIES.items()}
+            parts = [c.strip() for c in args.category.split(",")]
+            categories = []
+            for slug in parts:
+                if slug in slug_to_id:
+                    categories.append(slug_to_id[slug])
+                else:
+                    print(f"Error: Unknown category '{slug}'. Use numbers, slugs, or 'all'")
+                    return
 
     if not args.provider:
         print("Error: --provider is required for generation")

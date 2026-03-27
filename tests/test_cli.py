@@ -86,6 +86,11 @@ class TestDryRun:
         assert "DRY RUN" in output
         assert "90" in output
 
+    def test_dry_run_category_slug(self):
+        output, err, code = run_cli("--dry-run", "-c", "proposed-new-module", "-n", "1", "-p", "openai")
+        assert code == 0
+        assert "DRY RUN" in output
+
 
 class TestErrorCases:
     def test_missing_provider_for_generation(self):
@@ -96,7 +101,7 @@ class TestErrorCases:
     def test_invalid_category_format(self):
         output, err, code = run_cli("-c", "abc", "-p", "openai")
         combined = output + err
-        assert "invalid" in combined.lower() or "number" in combined.lower()
+        assert "unknown" in combined.lower()
 
     def test_validate_without_subflag(self):
         output, err, code = run_cli("--validate")
