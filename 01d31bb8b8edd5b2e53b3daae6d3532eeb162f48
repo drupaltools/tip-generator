@@ -1,0 +1,29 @@
+pyproject.toml
+  438bf855b732d067 39
+src/tip_generator/templates/index.html
+  438bf855b732d067 7-9,11
+src/tip_generator/viewer.py
+  438bf855b732d067 20,24-40,52-55
+src/tip_generator/templates/about.html
+  438bf855b732d067 7-9,11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "01d31bb8b8edd5b2e53b3daae6d3532eeb162f48",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 214,
+      "total_deletions": 184,
+      "accepted_lines": 35,
+      "overriden_lines": 0
+    }
+  }
+}
