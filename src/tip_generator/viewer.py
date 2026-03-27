@@ -17,9 +17,26 @@ from typing import Optional, List, Dict, Any
 
 from flask import Flask, render_template, jsonify, request
 
-from tip_generator import get_tips_dir, DATA_DIR, ensure_data_dir
+from tip_generator import get_tips_dir, DATA_DIR, ensure_data_dir, PROJECT_ROOT
 
 PACKAGE_DIR = Path(__file__).parent
+
+# Load embedded CSS from package data (works when installed via pip)
+_embedded_css = ""
+try:
+    from importlib.resources import files as pkg_files
+    _css_ref = pkg_files("tip_generator") / "static" / "style.css"
+    with open(str(_css_ref), "r", encoding="utf-8") as _f:
+        _embedded_css = _f.read()
+except (FileNotFoundError, TypeError):
+    # Fallback: try filesystem (development)
+    for _css_path in [
+        PACKAGE_DIR / "static" / "style.css",
+        PROJECT_ROOT / "static" / "style.css" if PROJECT_ROOT else None,
+    ]:
+        if _css_path and _css_path.exists():
+            _embedded_css = _css_path.read_text()
+            break
 
 ensure_data_dir()
 
@@ -31,6 +48,11 @@ app = Flask(
     static_folder=str(PACKAGE_DIR / "static"),
     static_url_path="/static",
 )
+
+# Inject embedded CSS into all template renders
+@app.context_processor
+def inject_css():
+    return {"embedded_css": _embedded_css}
 
 
 def parse_tip_file(file_path: Path) -> Dict[str, Any]:
