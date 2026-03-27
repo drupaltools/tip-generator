@@ -280,3 +280,16 @@ Features:
 - Filter tips by category
 - Get random tip with one click
 - View all tips or browse by category
+
+## Uninstall
+
+```bash
+# Remove the package
+pip uninstall drupaltools-tip-generator
+
+# Remove generated data (tips, cache, config, API keys)
+rm -rf ~/.drupaltools/tip-generator
+
+# Optionally remove the parent directory if empty
+rmdir ~/.drupaltools 2>/dev/null
+```
