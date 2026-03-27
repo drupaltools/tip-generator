@@ -309,17 +309,23 @@ generated: {datetime.now().isoformat()}
 # ============ BATCH API FUNCTIONS ============
 
 
+def _anthropic_client(api_key: str, api_url: str = None, beta: str = None):
+    """Create an Anthropic client with explicit base_url to avoid system env interference."""
+    client_kwargs = {"api_key": api_key}
+    if api_url:
+        client_kwargs["base_url"] = api_url
+    else:
+        client_kwargs["base_url"] = "https://api.anthropic.com"
+    if beta:
+        client_kwargs["default_headers"] = {"anthropic-beta": beta}
+    return anthropic.Anthropic(**client_kwargs)
+
+
 def anthropic_batch_create(
     requests: List[dict], api_key: str, api_url: str = None
 ) -> str:
     """Create an Anthropic batch and return the batch ID."""
-    client_kwargs = {
-        "api_key": api_key,
-        "default_headers": {"anthropic-beta": "message-batches-2024-09-24"},
-    }
-    if api_url:
-        client_kwargs["base_url"] = api_url
-    client = anthropic.Anthropic(**client_kwargs)
+    client = _anthropic_client(api_key, api_url, beta="message-batches-2024-09-24")
 
     batch_requests = []
     for req in requests:
@@ -340,10 +346,7 @@ def anthropic_batch_create(
 
 def anthropic_batch_check(batch_id: str, api_key: str, api_url: str = None) -> dict:
     """Check Anthropic batch status and return results if complete."""
-    client_kwargs = {"api_key": api_key}
-    if api_url:
-        client_kwargs["base_url"] = api_url
-    client = anthropic.Anthropic(**client_kwargs)
+    client = _anthropic_client(api_key, api_url, beta="message-batches-2024-09-24")
     batch = client.messages.batches.retrieve(batch_id)
 
     result = {
