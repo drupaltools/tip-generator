@@ -1,0 +1,25 @@
+SKILL.md
+  438bf855b732d067 22,82,88
+README.md
+  438bf855b732d067 50,52,54,57-58,67,114,171,174-184,200,213,215,217-222,224-226,228-230,232,234,273-276
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "df677c122fad4b7010ad981a635bc08791238eaf",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 47,
+      "total_deletions": 92,
+      "accepted_lines": 47,
+      "overriden_lines": 0
+    }
+  }
+}
