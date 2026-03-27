@@ -1,0 +1,23 @@
+src/tip_generator/__init__.py
+  438bf855b732d067 312-323,328,349
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "ed63c7e8db749ff32525eb7cc531bfbaebfb8df0",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 14,
+      "total_deletions": 11,
+      "accepted_lines": 14,
+      "overriden_lines": 0
+    }
+  }
+}
