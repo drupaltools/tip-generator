@@ -33,6 +33,10 @@
     --border-subtle: #ccc;
 }
 
+[data-theme="light"] .tip-category {
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
 :root {
     --radius-sm: 4px;
     --radius-md: 8px;
