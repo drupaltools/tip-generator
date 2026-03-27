@@ -47,30 +47,24 @@ python -m tip_generator --random-tip
 
 ## Setup (for generating new tips)
 
-### 1. Create Virtual Environment
+First run auto-creates the data directory at `~/.drupaltools/tip-generator/` with a default `config.json` and a `.env` template.
+
+### Configure API Keys
+
+Edit the auto-created `.env` file and add your API keys:
 
 ```bash
-cd ~/.claude/skills/drupaltools-tip-generator
-python3 -m venv .venv
-source .venv/bin/activate
-pip install openai anthropic
+# Edit the default location
+nano ~/.drupaltools/tip-generator/.env
 ```
-
-### 2. Configure API Keys
-
-Copy the example environment file and add your keys:
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env` with your API keys (use `TIPGEN_` prefix):
 
 ```env
 TIPGEN_ANTHROPIC_API_KEY=sk-ant-...
 TIPGEN_OPENAI_API_KEY=sk-...
 TIPGEN_OPENROUTER_API_KEY=sk-or-...
 ```
+
+Or set them as environment variables (same `TIPGEN_` prefix).
 
 ## Usage
 
@@ -117,7 +111,7 @@ drupaltools-tip-generator -c 35 -n 5 -p openrouter
 | `-m, --model` | Override default model |
 | `-u, --api-url` | Custom API URL for OpenAI/Anthropic-compatible endpoints |
 | `-t, --max-tokens` | Maximum tokens for response (default: 4096) |
-| `--tips-dir` | Custom tips directory (or set `TIPGEN_TIPS_DIR` env var or `tips_dir` in config.json) |
+| `--tips-dir` | Custom tips directory (overrides `TIPGEN_TIPS_DIR` env var) |
 | `--save-truncated` | Save tips even if truncated (use with caution) |
 | `--no-wait` | Don't wait for batch completion |
 | `--dry-run` | Show what would be done without calling API |
@@ -174,15 +168,20 @@ drupaltools-tip-generator --check-batch BATCH_ID -p openai --save-results
 
 ## Output
 
-Tips are saved to `tips/{category-name}/{uuid}.md` with 8-character random IDs:
+Tips are saved to `~/.drupaltools/tip-generator/tips/{category-name}/{uuid}.md` with 8-character random IDs:
 
 ```
-tips/
-├── core-service/
-│   ├── a1b2c3d4.md
-│   └── e5f6g7h8.md
-└── rare-drush-command/
-    └── 9i0j1k2l.md
+~/.drupaltools/tip-generator/
+├── config.json
+├── .env
+├── cache/
+│   └── url_cache/
+└── tips/
+    ├── core-service/
+    │   ├── a1b2c3d4.md
+    │   └── e5f6g7h8.md
+    └── rare-drush-command/
+        └── 9i0j1k2l.md
 ```
 
 Each file has frontmatter:
@@ -198,13 +197,12 @@ title: [Generated title]
 
 ## Configuration
 
-Categories and the prompt template are defined in `config.json`:
+Categories and the prompt template are defined in `~/.drupaltools/tip-generator/config.json`:
 
 ```json
 {
   "prompt_template": "Generate a Drupal tip for category #{cat_id}: {cat_desc}...",
   "code_language": "php",
-  "tips_dir": "/path/to/custom/tips",
   "categories": {
     "1": {"name": "proposed-new-module", "desc": "Proposed new module"},
     "35": {"name": "core-service", "desc": "Lesser-known core service"}
@@ -212,16 +210,28 @@ Categories and the prompt template are defined in `config.json`:
 }
 ```
 
-### Tips Directory Configuration
+### Data Directory
 
-The tips directory can be configured via (in priority order):
+All data lives in `~/.drupaltools/tip-generator/`:
 
-1. **CLI argument**: `--tips-dir /path/to/tips`
-2. **Environment variable**: `TIPGEN_TIPS_DIR=/path/to/tips`
-3. **Config file**: `"tips_dir": "/path/to/tips"` in `config.json`
-4. **Default**: `tips/` folder in the package directory
+| Path | Purpose |
+|------|---------|
+| `config.json` | Categories and prompt template |
+| `.env` | API keys (auto-created with placeholders) |
+| `tips/` | Generated tip `.md` files |
+| `cache/` | Fetched URL cache for generation context |
 
-To add or modify categories, edit `config.json` directly - no code changes needed.
+### Path Overrides
+
+Any path can be overridden (in priority order):
+
+1. **CLI argument**: `--tips-dir`, etc.
+2. **Environment variable**: `TIPGEN_TIPS_DIR`, `TIPGEN_ENV_FILE`, `TIPGEN_CONFIG_FILE`
+3. **Default**: `~/.drupaltools/tip-generator/`
+
+When developing from source (detected by `pyproject.toml` in an ancestor directory), local `.env`, `config.json`, and `tips/` in the project root are used if they exist.
+
+To add or modify categories, edit `config.json` directly — no code changes needed.
 
 ## Development
 
@@ -260,10 +270,10 @@ A simple web UI to browse tips:
 
 ```bash
 pip install flask
-python tip_viewer.py                    # http://localhost:5000
-python tip_viewer.py --port 8080        # Custom port
-python tip_viewer.py --host 0.0.0.0     # Public access
-python tip_viewer.py --debug            # Debug mode
+python -m tip_generator.viewer          # http://localhost:5000
+python -m tip_generator.viewer --port 8080
+python -m tip_generator.viewer --host 0.0.0.0
+python -m tip_generator.viewer --debug
 ```
 
 Features:

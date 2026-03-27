@@ -15,38 +15,11 @@ Display one random tip from the pre-generated static database.
 
 ## Installation
 
-### Option 1: Install via Python package (Recommended)
-
-Install the Python package, then run the random tip command:
-
 ```bash
-# Install the package
 pip install drupaltools-tip-generator
-
-# Get a random tip
-drupaltools-tip-generator --random-tip
 ```
 
-### Option 2: Install via skills CLI
-
-```bash
-# Install for OpenCode
-npx skills add drupaltools/tip-generator --agent opencode
-```
-
-### Option 3: Manual installation
-
-Copy this skill to your OpenCode skills directory:
-
-```bash
-# Project-local (recommended)
-mkdir -p .agents/skills/drupaltools-tip-generator
-cp SKILL.md .agents/skills/drupaltools-tip-generator/
-
-# Or global
-mkdir -p ~/.config/opencode/skills/drupal-tip
-cp SKILL.md ~/.config/opencode/skills/drupal-tip/
-```
+First run auto-creates `~/.drupaltools/tip-generator/` with a default `config.json`, `.env` template, and `tips/` directory.
 
 ## Instructions
 
@@ -54,12 +27,6 @@ cp SKILL.md ~/.config/opencode/skills/drupal-tip/
 
 ```bash
 drupaltools-tip-generator --random-tip
-```
-
-Or if running from the source directory:
-
-```bash
-cd ~/.claude/skills/drupaltools-tip-generator && .venv/bin/python tip_generator.py --random-tip
 ```
 
 2. Display the output exactly as returned (includes the tip text and any code blocks).
@@ -112,42 +79,20 @@ Use `--tip-category <name>` to filter by one of these folder names:
 
 ## Database Management
 
-If you need to generate new tips (requires API keys):
+If you need to generate new tips, add API keys to `~/.drupaltools/tip-generator/.env` first:
 
 ```bash
-# Install the package
-pip install drupaltools-tip-generator
-
 # Generate tips for a specific category
 drupaltools-tip-generator -c 35 -n 5 -p openai
 
-# Or generate for all categories
+# Generate for all categories
 drupaltools-tip-generator -c all -n 3 -p openai
-```
 
-Or if running from source:
-
-```bash
-cd ~/.claude/skills/drupaltools-tip-generator
-
-# Install dependencies
-pip install -e .
-
-# Generate tips
-python -c 35 -n 5 -p openai
-```
-
-Other commands:
-
-```bash
 # List all available category IDs
 drupaltools-tip-generator --list-categories
 
 # List categories with existing tips
 drupaltools-tip-generator --list-existing
-
-# Fetch remote data for categories with URLs (run before generating)
-drupaltools-tip-generator --fetch-data
 
 # Validate generated tips
 drupaltools-tip-generator --validate --validate-all
