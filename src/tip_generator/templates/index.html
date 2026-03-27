@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drupal Tip Viewer</title>
     {% if embedded_css %}
-    <style>{{ embedded_css }}</style>
+    <style>{{ embedded_css|safe }}</style>
     {% else %}
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     {% endif %}
