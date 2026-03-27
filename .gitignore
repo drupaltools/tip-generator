@@ -17,6 +17,7 @@ __pycache__/
 .venv/
 venv/
 ENV/
+.pytest_cache/
 
 # IDE
 .idea/

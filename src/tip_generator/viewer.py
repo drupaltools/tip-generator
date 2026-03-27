@@ -184,7 +184,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Update TIPS_DIR based on CLI argument (overrides default/env)
-    global TIPS_DIR
     TIPS_DIR = get_tips_dir(args.tips_dir)
 
     app.run(host=args.host, port=args.port, debug=args.debug)
