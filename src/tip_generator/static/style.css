@@ -224,6 +224,7 @@ button:active {
     border-radius: var(--radius-md);
     overflow-x: auto;
     margin: 1rem 0;
+    position: relative;
 }
 
 .tip-content code {
@@ -233,6 +234,39 @@ button:active {
 
 .tip-content pre code {
     display: block;
+}
+
+.copy-btn {
+    position: absolute;
+    top: 0.4rem;
+    right: 0.4rem;
+    background: var(--btn-bg);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+    line-height: 1;
+}
+
+pre:hover .copy-btn {
+    opacity: 1;
+}
+
+.copy-btn:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+    border-color: var(--accent);
+}
+
+.copy-btn.copied {
+    opacity: 1;
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: var(--accent);
+    border-color: var(--accent);
 }
 
 /* Inline code (not inside pre) */

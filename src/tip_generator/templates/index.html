@@ -48,7 +48,25 @@
             return html;
         }
 
+        document.addEventListener('click', function(e) {
+            const btn = e.target.closest('.copy-btn');
+            if (!btn) return;
+            const pre = btn.closest('pre');
+            const code = pre.querySelector('code');
+            if (!code) return;
+            navigator.clipboard.writeText(code.textContent).then(function() {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(function() {
+                    btn.textContent = '\u2398';
+                    btn.classList.remove('copied');
+                }, 1500);
+            });
+        });
+
         function renderTip(tip) {
+            const content = formatContent(tip.content)
+                .replace(/<pre>/g, '<pre><button class="copy-btn">\u2398</button>');
             return `
                 <div class="tip-card">
                     <div class="tip-header">
@@ -60,7 +78,7 @@
                         </span>` : ''}
                     </div>
                     ${tip.title ? `<h3 class="tip-title">${tip.title}</h3>` : ''}
-                    <div class="tip-content">${formatContent(tip.content)}</div>
+                    <div class="tip-content">${content}</div>
                 </div>
             `;
         }
