@@ -42,7 +42,7 @@ tip_generator = ["templates/*.html", "static/*.css", "config.json"]
 include-package-data = false
 
 [project.optional-dependencies]
-test = ["pytest>=7.0"]
+test = ["pytest>=7.0", "flask>=3.0", "requests", "html2text"]
 viewer = ["flask>=3.0"]
 
 [tool.pytest.ini_options]
