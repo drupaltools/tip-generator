@@ -1,0 +1,25 @@
+src/tip_generator/templates/about.html
+  438bf855b732d067 8
+src/tip_generator/templates/index.html
+  438bf855b732d067 8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "929636d5628b36d959e0fc26e5b36751e9c6a330",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 43,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
