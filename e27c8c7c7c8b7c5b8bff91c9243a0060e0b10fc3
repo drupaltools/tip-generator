@@ -1,0 +1,25 @@
+src/tip_generator/templates/index.html
+  438bf855b732d067 51-66,68-69,81
+src/tip_generator/static/style.css
+  438bf855b732d067 227,239-269
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "e27c8c7c7c8b7c5b8bff91c9243a0060e0b10fc3",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 53,
+      "total_deletions": 1,
+      "accepted_lines": 53,
+      "overriden_lines": 0
+    }
+  }
+}
