@@ -43,13 +43,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td><code>GET /api/tips</code></td><td>Get all tips</td></tr>
-                        <tr><td><code>GET /api/tips?category=X</code></td><td>Get tips by category</td></tr>
-                        <tr><td><code>GET /api/random</code></td><td>Get random tip</td></tr>
-                        <tr><td><code>GET /api/random?category=X</code></td><td>Get random tip from category</td></tr>
-                        <tr><td><code>GET /api/categories</code></td><td>List all categories</td></tr>
+                        <tr><td><a href="/api/tips"><code>GET /api/tips</code></a></td><td>Get all tips</td></tr>
+                        <tr><td><a href="/api/random"><code>GET /api/random</code></a></td><td>Get random tip</td></tr>
+                        <tr><td><a href="/api/categories"><code>GET /api/categories</code></a></td><td>List all categories with URLs</td></tr>
                     </tbody>
                 </table>
+            </section>
+
+            <section class="about-section">
+                <h2>Examples</h2>
+                <ul class="about-list">
+                    {% for cat in categories[:5] %}
+                    <li><strong>{{ cat.name }}</strong> ({{ cat.count }} tips)
+                        — <a href="{{ cat.url_tips }}">Browse all</a>
+                        · <a href="{{ cat.url_random }}">Random tip</a>
+                    </li>
+                    {% endfor %}
+                    {% if categories|length > 5 %}
+                    <li><a href="/api/categories">View all {{ categories|length }} categories</a></li>
+                    {% endif %}
+                </ul>
             </section>
 
             <section class="about-section">

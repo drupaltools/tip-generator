@@ -108,6 +108,8 @@ def get_categories() -> List[Dict[str, Any]]:
                 {
                     "name": cat_dir.name,
                     "count": len(tip_files),
+                    "url_tips": f"/api/tips?category={cat_dir.name}",
+                    "url_random": f"/api/random?category={cat_dir.name}",
                 }
             )
     return categories
