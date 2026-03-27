@@ -1,0 +1,27 @@
+src/tip_generator/__init__.py
+  438bf855b732d067 26,29,34-35,42,49,51-58,76-106,113,205,611,744,897,946
+src/tip_generator/url_cache.py
+  438bf855b732d067 14-16
+src/tip_generator/viewer.py
+  438bf855b732d067 20,22,24,30-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "b7f9736b37e85dd0ed56992ab996c18d69cf9759",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 64,
+      "total_deletions": 99,
+      "accepted_lines": 63,
+      "overriden_lines": 0
+    }
+  }
+}
