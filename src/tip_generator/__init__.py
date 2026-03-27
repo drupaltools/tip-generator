@@ -23,54 +23,39 @@ import argparse
 import os
 import json
 import re
+import shutil
 import time
 import uuid
+from importlib.resources import files as pkg_files
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any, Tuple
 
-SCRIPT_DIR = Path(__file__).parent
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-SKILL_PATH = None
-
-
-def set_skill_path(path: str) -> None:
-    global SKILL_PATH
-    SKILL_PATH = Path(path)
-    reload_env()
-    reload_config()
+DATA_DIR = Path.home() / ".drupaltools" / "tip-generator"
+PACKAGE_DIR = Path(__file__).parent
 
 
 def get_env_file_path() -> Path:
     env_path = os.environ.get("TIPGEN_ENV_FILE")
     if env_path:
         return Path(env_path).expanduser().resolve()
-
-    candidates = [
-        Path(SKILL_PATH) / ".env" if SKILL_PATH else None,
-        PROJECT_ROOT / ".env",
-        SCRIPT_DIR / ".env",
-    ]
-    for candidate in candidates:
-        if candidate and candidate.exists():
-            return candidate
-    return SCRIPT_DIR / ".env"
+    return DATA_DIR / ".env"
 
 
 def get_config_file_path() -> Path:
     config_path = os.environ.get("TIPGEN_CONFIG_FILE")
     if config_path:
         return Path(config_path).expanduser().resolve()
+    return DATA_DIR / "config.json"
 
-    candidates = [
-        Path(SKILL_PATH) / "config.json" if SKILL_PATH else None,
-        PROJECT_ROOT / "config.json",
-        SCRIPT_DIR / "config.json",
-    ]
-    for candidate in candidates:
-        if candidate and candidate.exists():
-            return candidate
-    return SCRIPT_DIR / "config.json"
+
+def get_tips_dir(cli_path: Optional[str] = None) -> Path:
+    if cli_path:
+        return Path(cli_path).expanduser().resolve()
+    env_path = os.environ.get("TIPGEN_TIPS_DIR")
+    if env_path:
+        return Path(env_path).expanduser().resolve()
+    return DATA_DIR / "tips"
 
 
 ENV_FILE = get_env_file_path()
@@ -88,12 +73,44 @@ def load_env_file():
                     os.environ[key] = value
 
 
+def ensure_data_dir() -> None:
+    """Create the data directory structure and seed default files on first run."""
+    data_dir = DATA_DIR
+    data_dir.mkdir(parents=True, exist_ok=True)
+    (data_dir / "tips").mkdir(exist_ok=True)
+    (data_dir / "cache").mkdir(exist_ok=True)
+
+    # Seed default config.json if missing
+    config_target = data_dir / "config.json"
+    if not config_target.exists():
+        try:
+            bundled = pkg_files("tip_generator") / "config.json"
+            with open(str(bundled), "rb") as src:
+                with open(config_target, "wb") as dst:
+                    shutil.copyfileobj(src, dst)
+        except (FileNotFoundError, TypeError):
+            pass
+
+    # Seed template .env if missing
+    env_target = data_dir / ".env"
+    if not env_target.exists():
+        env_target.write_text(
+            "# Drupal Tip Generator - API Keys\n"
+            "# Uncomment and fill in the keys you want to use.\n"
+            "\n"
+            "# ANTHROPIC_API_KEY=\n"
+            "# OPENAI_API_KEY=\n"
+            "# OPENROUTER_API_KEY=\n"
+        )
+
+
 def reload_env():
     global ENV_FILE
     ENV_FILE = get_env_file_path()
     load_env_file()
 
 
+ensure_data_dir()
 load_env_file()
 
 
@@ -180,55 +197,12 @@ CONFIG = load_config()
 CATEGORIES = {int(k): v for k, v in CONFIG["categories"].items()}
 
 
-def set_skill_path(path: str) -> None:
-    global SKILL_PATH
-    SKILL_PATH = Path(path)
-    reload_env()
-    reload_config()
-
-
-def get_tips_dir(cli_path: Optional[str] = None) -> Path:
-    if cli_path:
-        return Path(cli_path).expanduser().resolve()
-
-    env_path = os.environ.get("TIPGEN_TIPS_DIR")
-    if env_path:
-        return Path(env_path).expanduser().resolve()
-
-    config_path = CONFIG.get("tips_dir")
-    if config_path:
-        return Path(config_path).expanduser().resolve()
-
-    candidates = [
-        Path.home() / ".drupaltools" / "tips",
-        Path(SKILL_PATH) / "tips" if SKILL_PATH else None,
-        Path.cwd() / "tips",
-        PROJECT_ROOT / "tips",
-    ]
-
-    for candidate in candidates:
-        if candidate and candidate.exists() and candidate.is_dir():
-            if list(candidate.rglob("*.md")):
-                return candidate
-
-    for candidate in candidates:
-        if candidate and candidate.exists() and candidate.is_dir():
-            return candidate
-
-    return Path.home() / ".drupaltools" / "tips"
+# Default tips directory (can be overridden via CLI/env)
+TIPS_DIR = get_tips_dir()
 
 
 def get_default_generate_dir() -> Path:
-    if SKILL_PATH:
-        return Path(SKILL_PATH) / "tips"
-    return PROJECT_ROOT / "tips"
-    if SKILL_PATH:
-        return Path(SKILL_PATH) / "tips"
-    return PROJECT_ROOT / "tips"
-
-
-# Default tips directory (can be overridden via CLI/env/config)
-TIPS_DIR = get_tips_dir()
+    return DATA_DIR / "tips"
 
 
 def get_prompt_for_category(
@@ -634,7 +608,7 @@ def call_openrouter_sync(
 
 # ============ GENERATION FUNCTIONS ============
 
-ERROR_LOG_FILE = SCRIPT_DIR / "errors.json"
+ERROR_LOG_FILE = DATA_DIR / "errors.json"
 
 
 def log_error(error_data: dict) -> None:
@@ -767,7 +741,7 @@ def generate_sync(
                         }
                     )
                     continue
-                print(f"Saved to {get_relative_path(file_path, PROJECT_ROOT)}")
+                print(f"Saved to {get_relative_path(file_path, DATA_DIR)}")
                 generated += 1
 
             except Exception as e:
@@ -920,7 +894,7 @@ def generate_batch(
                     if cat_info:
                         file_path = save_tip(cat_info, res.get("content"), target_dir)
                         if file_path:
-                            print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
+                            print(f"  Saved: {file_path.relative_to(DATA_DIR)}")
                             generated += 1
                         else:
                             print(f"  SKIPPED: Empty content for {custom_id}")
@@ -969,7 +943,7 @@ def check_batch_status(
                 if cat_info:
                     file_path = save_tip(cat_info, res.get("content"), target_dir)
                     if file_path:
-                        print(f"  Saved: {file_path.relative_to(SCRIPT_DIR)}")
+                        print(f"  Saved: {file_path.relative_to(DATA_DIR)}")
                     else:
                         print(f"  SKIPPED: Empty content for {custom_id}")
 

@@ -11,8 +11,9 @@ from typing import Optional, List, Dict, Any
 import requests
 import html2text
 
-SCRIPT_DIR = Path(__file__).parent
-CACHE_DIR = SCRIPT_DIR / "cache-data" / "url_cache"
+from tip_generator import DATA_DIR
+
+CACHE_DIR = DATA_DIR / "cache" / "url_cache"
 USER_AGENT = (
     "DrupalTipGenerator/1.0 (https://github.com/drupaltools/drupaltools-tip-generator)"
 )

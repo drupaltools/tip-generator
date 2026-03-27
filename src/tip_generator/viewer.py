@@ -17,29 +17,19 @@ from typing import Optional, List, Dict, Any
 
 from flask import Flask, render_template, jsonify, request
 
-SCRIPT_DIR = Path(__file__).parent
+from tip_generator import get_tips_dir, DATA_DIR, ensure_data_dir
 
+PACKAGE_DIR = Path(__file__).parent
 
-def get_tips_dir(cli_path: Optional[str] = None) -> Path:
-    """Get tips directory with priority: CLI > env var > default."""
-    # 1. CLI argument (highest priority)
-    if cli_path:
-        return Path(cli_path).expanduser().resolve()
-
-    # 2. Environment variable
-    env_path = os.environ.get("TIPGEN_TIPS_DIR")
-    if env_path:
-        return Path(env_path).expanduser().resolve()
-
-    # 3. Default (lowest priority)
-    return SCRIPT_DIR / "tips"
-
+ensure_data_dir()
 
 # Default tips directory (can be overridden via CLI/env)
 TIPS_DIR = get_tips_dir()
 
 app = Flask(
-    __name__, static_folder=str(SCRIPT_DIR / "static"), static_url_path="/static"
+    __name__,
+    static_folder=str(PACKAGE_DIR / "static"),
+    static_url_path="/static",
 )
 
 
