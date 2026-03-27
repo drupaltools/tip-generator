@@ -35,10 +35,29 @@ DATA_DIR = Path.home() / ".drupaltools" / "tip-generator"
 PACKAGE_DIR = Path(__file__).parent
 
 
+def _find_project_root() -> Optional[Path]:
+    """Find the project root by walking up from the package dir."""
+    current = PACKAGE_DIR
+    for _ in range(5):
+        if (current / "pyproject.toml").exists():
+            return current
+        parent = current.parent
+        if parent == current:
+            break
+        current = parent
+    return None
+
+
+PROJECT_ROOT = _find_project_root()
+
+
 def get_env_file_path() -> Path:
     env_path = os.environ.get("TIPGEN_ENV_FILE")
     if env_path:
         return Path(env_path).expanduser().resolve()
+    # Dev fallback: use project root .env if it exists
+    if PROJECT_ROOT and (PROJECT_ROOT / ".env").exists():
+        return PROJECT_ROOT / ".env"
     return DATA_DIR / ".env"
 
 
@@ -46,6 +65,9 @@ def get_config_file_path() -> Path:
     config_path = os.environ.get("TIPGEN_CONFIG_FILE")
     if config_path:
         return Path(config_path).expanduser().resolve()
+    # Dev fallback: use project root config.json if it exists
+    if PROJECT_ROOT and (PROJECT_ROOT / "config.json").exists():
+        return PROJECT_ROOT / "config.json"
     return DATA_DIR / "config.json"
 
 
@@ -55,6 +77,11 @@ def get_tips_dir(cli_path: Optional[str] = None) -> Path:
     env_path = os.environ.get("TIPGEN_TIPS_DIR")
     if env_path:
         return Path(env_path).expanduser().resolve()
+    # Dev fallback: use project root tips/ if it exists and has content
+    if PROJECT_ROOT:
+        local_tips = PROJECT_ROOT / "tips"
+        if local_tips.exists() and any(local_tips.rglob("*.md")):
+            return local_tips
     return DATA_DIR / "tips"
 
 
