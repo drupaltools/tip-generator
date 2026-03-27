@@ -105,7 +105,7 @@ drupaltools-tip-generator -c 35 -n 5 -p openrouter
 
 | Argument | Description |
 |----------|-------------|
-| `-c, --category` | Category number(s) or `all` |
+| `-c, --category` | Category number(s), slug name(s), or `all` |
 | `-n, --count` | Number of tips per category (default: 5) |
 | `-p, --provider` | LLM provider: `anthropic`, `openai`, `openrouter` |
 | `-m, --model` | Override default model |
@@ -127,11 +127,15 @@ drupaltools-tip-generator -c 35 -n 5 -p openrouter
 ### Examples
 
 ```bash
-# Generate 3 tips for category 35 (core-service)
+# Generate 3 tips for category 35 (core-service) — by numeric ID
 drupaltools-tip-generator -c 35 -n 3 -p openrouter
 
-# Generate 5 tips for multiple categories
+# Generate 3 tips for core-service — by slug name
+drupaltools-tip-generator -c core-service -n 3 -p openrouter
+
+# Generate 5 tips for multiple categories (numbers or slugs)
 drupaltools-tip-generator -c 35,36,37 -n 5 -p openrouter
+drupaltools-tip-generator -c core-service,composer-trick,drupal-hook -n 5 -p openrouter
 
 # Generate 1 tip for ALL categories
 drupaltools-tip-generator -c all -n 1 -p openrouter
