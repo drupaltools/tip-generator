@@ -1,0 +1,43 @@
+tests/test_pure.py
+  438bf855b732d067 1-158
+tests/test_config.py
+  438bf855b732d067 1-68
+pyproject.toml
+  438bf855b732d067 43-49
+tests/test_url_cache.py
+  438bf855b732d067 1-108
+tests/test_cli.py
+  438bf855b732d067 1-140
+tests/test_tip_storage.py
+  438bf855b732d067 1-110
+tests/test_viewer.py
+  438bf855b732d067 1-74
+tests/test_paths.py
+  438bf855b732d067 1-166
+.gitignore
+  438bf855b732d067 20
+tests/conftest.py
+  438bf855b732d067 1-59
+tests/test_tip_parsing.py
+  438bf855b732d067 1-154
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "07ecb30669fafa64d288ea93bfcbfa63567cc005",
+  "prompts": {
+    "438bf855b732d067": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b95cbdfa-c544-47d1-b6ac-acc3abb60fde",
+        "model": "glm-5-turbo"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1137,
+      "total_deletions": 93,
+      "accepted_lines": 1045,
+      "overriden_lines": 0
+    }
+  }
+}
