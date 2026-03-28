@@ -170,13 +170,13 @@ def fetch_html(url: str) -> tuple[str, str, list, list]:
         r"<style[^>]*>.*?</style>", "", html_content, flags=re.DOTALL | re.IGNORECASE
     )
 
+    sub_links, pagination_links = _extract_sub_links(html_content, url, max_links=20)
+
     html_content = _extract_main_content(html_content)
 
     markdown_content = h.handle(html_content)
     markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
     markdown_content = clean_markdown(markdown_content)
-
-    sub_links, pagination_links = _extract_sub_links(html_content, url, max_links=20)
 
     return markdown_content.strip(), title, sub_links, pagination_links
 
