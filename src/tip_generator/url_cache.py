@@ -114,25 +114,30 @@ def fetch_html(url: str) -> tuple[str, str, list]:
     markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
     markdown_content = clean_markdown(markdown_content)
 
-    sub_links = _extract_sub_links(html_content, url, max_links=20)
+    sub_links, pagination_links = _extract_sub_links(html_content, url, max_links=20)
 
-    return markdown_content.strip(), title, sub_links
+    return markdown_content.strip(), title, sub_links, pagination_links
 
 
-def _extract_sub_links(
-    html_content: str, base_url: str, max_links: int = 20
+def _extract_pagination_links(
+    html_content: str, base_url: str, max_pages: int = 5
 ) -> List[str]:
-    from urllib.parse import urljoin, urlparse
+    from urllib.parse import urljoin, urlparse, parse_qs, urlencode
+
+    pagination_patterns = [
+        r"[?&](page|p|offset)=\d+",
+        r"/(?:page|p|offset)/\d+",
+    ]
 
     try:
         base_parsed = urlparse(base_url)
-        base_origin = f"{base_parsed.scheme}://{base_parsed.netloc}"
     except Exception:
         return []
 
     link_pattern = re.compile(r'<a\s+[^>]*href=["\']([^"\']+)["\']', re.IGNORECASE)
-    found = []
-    seen = set()
+    pagination_links = []
+    seen_pages = set()
+    seen_pages.add(base_url)
 
     for match in link_pattern.finditer(html_content):
         href = match.group(1).strip()
@@ -152,6 +157,70 @@ def _extract_sub_links(
         ):
             continue
 
+        is_pagination = False
+        for pattern in pagination_patterns:
+            if re.search(pattern, full_url, re.IGNORECASE):
+                is_pagination = True
+                break
+
+        if is_pagination and full_url not in seen_pages:
+            pagination_links.append(full_url)
+            seen_pages.add(full_url)
+
+    return pagination_links[:max_pages]
+
+
+def _extract_sub_links(
+    html_content: str, base_url: str, max_links: int = 20, max_pages: int = 5
+) -> tuple:
+    from urllib.parse import urljoin, urlparse, urlunparse
+
+    try:
+        base_parsed = urlparse(base_url)
+    except Exception:
+        return [], []
+
+    link_pattern = re.compile(r'<a\s+[^>]*href=["\']([^"\']+)["\']', re.IGNORECASE)
+    pagination_patterns = [
+        r"[?&](page|p|offset)=\d+",
+        r"/(?:page|p|offset)/\d+",
+    ]
+
+    found = []
+    seen = set()
+    pagination_links = []
+    seen_pagination = set()
+
+    for match in link_pattern.finditer(html_content):
+        href = match.group(1).strip()
+        if (
+            not href
+            or href.startswith("#")
+            or href.startswith("mailto:")
+            or href.startswith("tel:")
+        ):
+            continue
+
+        full_url = urljoin(base_url, href)
+        url_parsed = urlparse(full_url)
+
+        if not url_parsed.netloc or not url_parsed.netloc.startswith(
+            base_parsed.netloc
+        ):
+            continue
+
+        is_pagination = False
+        for pattern in pagination_patterns:
+            if re.search(pattern, full_url, re.IGNORECASE):
+                is_pagination = True
+                break
+
+        if is_pagination:
+            if full_url not in seen_pagination and len(pagination_links) < max_pages:
+                pagination_links.append(full_url)
+                seen_pagination.add(full_url)
+            continue
+
         if full_url in seen:
             continue
         seen.add(full_url)
@@ -160,7 +229,7 @@ def _extract_sub_links(
         if len(found) >= max_links:
             break
 
-    return found
+    return found, pagination_links
 
 
 def clean_markdown(content: str) -> str:
@@ -235,12 +304,13 @@ def fetch_url(url: str) -> Dict[str, Any]:
             result["content"] = data
             result["source_url"] = source
         else:
-            markdown, title, sub_links = fetch_html(url)
+            markdown, title, sub_links, pagination_links = fetch_html(url)
             result["type"] = "markdown"
             result["content"] = markdown
             result["title"] = title
             result["source_url"] = url
             result["sub_links"] = sub_links
+            result["pagination_links"] = pagination_links
 
     except requests.RequestException as e:
         result["error"] = str(e)
@@ -457,6 +527,25 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
                             context_parts.append(sub_formatted)
                 except Exception as e:
                     print(f"    [sub-error] {sub_url}: {e}")
+
+        pagination_links = page_content.get("pagination_links", [])
+        for page_url in pagination_links:
+            page_cached = get_cached_content(page_url)
+            if page_cached and is_cache_valid(page_cached):
+                page_formatted = _format_cached_content(page_url, page_cached)
+                if page_formatted:
+                    context_parts.append(page_formatted)
+            else:
+                print(f"  [page] {page_url}")
+                try:
+                    page_data = fetch_url(page_url)
+                    if "error" not in page_data:
+                        cache_content(page_url, page_data)
+                        page_formatted = _format_cached_content(page_url, page_data)
+                        if page_formatted:
+                            context_parts.append(page_formatted)
+                except Exception as e:
+                    print(f"  [page-error] {page_url}: {e}")
 
     if context_parts:
         return "\n\n---\n\n".join(context_parts)
