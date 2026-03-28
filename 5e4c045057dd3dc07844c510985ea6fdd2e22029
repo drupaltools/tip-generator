@@ -1,0 +1,23 @@
+example.config.json
+  10efa0fbf971ad82 2-25,27-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "5e4c045057dd3dc07844c510985ea6fdd2e22029",
+  "prompts": {
+    "10efa0fbf971ad82": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-3acd5502-156c-4a53-a101-50d8787e3724",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 29,
+      "total_deletions": 6,
+      "accepted_lines": 29,
+      "overriden_lines": 0
+    }
+  }
+}
