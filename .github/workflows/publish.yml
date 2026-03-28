@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -32,8 +30,11 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
         id: version
 
+      - name: Inject version into pyproject.toml
+        run: sed -i 's/^version = "0.0.0"/version = "${{ steps.version.outputs.VERSION }}"/' pyproject.toml
+
       - name: Build package
-        run: SETUPTOOLS_SCM_PRETEND_VERSION=${{ steps.version.outputs.VERSION }} python -m build
+        run: python -m build
 
       - name: Publish to PyPI
         env:
