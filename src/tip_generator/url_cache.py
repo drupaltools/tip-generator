@@ -506,6 +506,50 @@ def get_cached_content(url: str) -> Optional[Dict[str, Any]]:
                             }
                     return {"type": "markdown", "content": content}
 
+    if not CACHE_DIR.exists():
+        return None
+
+    for cache_file in CACHE_DIR.iterdir():
+        if cache_file.suffix not in [".md", ".json"]:
+            continue
+        try:
+            with open(cache_file, "r", encoding="utf-8") as f:
+                content = f.read()
+            if not content.startswith("---"):
+                continue
+            parts = content.split("---", 2)
+            if len(parts) < 3:
+                continue
+            fm_text = parts[1]
+            fm_data = {}
+            for line in fm_text.strip().split("\n"):
+                if ":" in line:
+                    key, val = line.split(":", 1)
+                    fm_data[key.strip()] = val.strip()
+            if fm_data.get("url") == url:
+                body = parts[2].strip()
+                sub_links_raw = fm_data.get("sub_links", "[]")
+                pagination_links_raw = fm_data.get("pagination_links", "[]")
+                try:
+                    sub_links = json.loads(sub_links_raw)
+                except json.JSONDecodeError:
+                    sub_links = []
+                try:
+                    pagination_links = json.loads(pagination_links_raw)
+                except json.JSONDecodeError:
+                    pagination_links = []
+                return {
+                    "type": cache_file.suffix[1:],
+                    "content": body,
+                    "title": fm_data.get("title", ""),
+                    "url": url,
+                    "cached_at": fm_data.get("cached_at", ""),
+                    "sub_links": sub_links,
+                    "pagination_links": pagination_links,
+                }
+        except Exception:
+            continue
+
     return None
 
 
