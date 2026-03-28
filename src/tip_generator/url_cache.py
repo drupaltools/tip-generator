@@ -74,11 +74,11 @@ def fetch_wikipedia(url: str) -> tuple[str, str]:
     return None, None
 
 
-def fetch_html(url: str) -> tuple[str, str, list]:
+def fetch_html(url: str) -> tuple[str, str, list, list]:
     if "wikipedia.org" in url.lower():
         extract, title = fetch_wikipedia(url)
         if extract:
-            return extract, title, []
+            return extract, title, [], []
 
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=FETCH_TIMEOUT)
@@ -91,7 +91,7 @@ def fetch_html(url: str) -> tuple[str, str, list]:
             r"<title[^>]*>([^<]+)</title>", text_content, re.IGNORECASE
         )
         title = title_match.group(1).strip() if title_match else ""
-        return text_content, title, []
+        return text_content, title, [], []
 
     html_content = text_content
     title_match = re.search(r"<title[^>]*>([^<]+)</title>", html_content, re.IGNORECASE)
