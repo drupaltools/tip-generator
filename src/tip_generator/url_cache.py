@@ -82,6 +82,15 @@ def _extract_main_content(html: str) -> str:
 
     soup = BeautifulSoup(html, "html.parser")
 
+    skip_patterns = ["skip", "main content", "main-content", "skip-link"]
+    skip_link = None
+    for a in soup.find_all("a"):
+        text = a.get_text(strip=True).lower()
+        href = a.get("href", "")
+        if any(p in text for p in skip_patterns) and href.startswith("#"):
+            skip_link = href[1:]
+            break
+
     selectors = [
         "article",
         "main",
@@ -90,6 +99,9 @@ def _extract_main_content(html: str) -> str:
         ".region-content",
         "#block-system-main",
     ]
+    if skip_link:
+        selectors.insert(0, f"#{skip_link}")
+
     for selector in selectors:
         element = soup.select_one(selector)
         if element:
