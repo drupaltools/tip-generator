@@ -1,0 +1,54 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          CHANGELOG=$(git log --oneline --pretty="%s" ${{ github.event.repository.default_branch }}..HEAD | head -20)
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: |
+            ## Changes in this release
+
+            ${{ steps.changelog.outputs.changelog }}
+
+            ---
+
+            ### Installation
+
+            ```bash
+            pip install drupaltools-tip-generator==${{ steps.version.outputs.VERSION }}
+            ```
+
+            Or upgrade:
+            ```bash
+            pip install drupaltools-tip-generator --upgrade
+            ```
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
