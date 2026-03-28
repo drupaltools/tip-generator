@@ -1,0 +1,23 @@
+.github/workflows/release.yml
+  785083da5c50d530 1-54
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "d7673fd80a96a186a32769c4cdf5fd982ce4726f",
+  "prompts": {
+    "785083da5c50d530": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-6257388d-ae47-44de-b10e-31976322a9c7",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 54,
+      "total_deletions": 0,
+      "accepted_lines": 54,
+      "overriden_lines": 0
+    }
+  }
+}
