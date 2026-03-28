@@ -421,16 +421,7 @@ def cache_content(url: str, data: Dict[str, Any], category_name: str = "") -> Pa
     content_type = data.get("type", "unknown")
     extension = "json" if content_type == "json" else "md"
 
-    if category_name:
-        slug = _slugify(category_name)
-        counter = 1
-        base_name = f"{slug}-{counter}"
-        while (CACHE_DIR / f"{base_name}.{extension}").exists():
-            counter += 1
-            base_name = f"{slug}-{counter}"
-        cache_file = CACHE_DIR / f"{base_name}.{extension}"
-    else:
-        cache_file = CACHE_DIR / f"{url_hash}.{extension}"
+    cache_file = CACHE_DIR / f"{url_hash}.{extension}"
 
     cache_entry = {
         "url": url,
@@ -505,50 +496,6 @@ def get_cached_content(url: str) -> Optional[Dict[str, Any]]:
                                 "pagination_links": pagination_links,
                             }
                     return {"type": "markdown", "content": content}
-
-    if not CACHE_DIR.exists():
-        return None
-
-    for cache_file in CACHE_DIR.iterdir():
-        if cache_file.suffix not in [".md", ".json"]:
-            continue
-        try:
-            with open(cache_file, "r", encoding="utf-8") as f:
-                content = f.read()
-            if not content.startswith("---"):
-                continue
-            parts = content.split("---", 2)
-            if len(parts) < 3:
-                continue
-            fm_text = parts[1]
-            fm_data = {}
-            for line in fm_text.strip().split("\n"):
-                if ":" in line:
-                    key, val = line.split(":", 1)
-                    fm_data[key.strip()] = val.strip()
-            if fm_data.get("url") == url:
-                body = parts[2].strip()
-                sub_links_raw = fm_data.get("sub_links", "[]")
-                pagination_links_raw = fm_data.get("pagination_links", "[]")
-                try:
-                    sub_links = json.loads(sub_links_raw)
-                except json.JSONDecodeError:
-                    sub_links = []
-                try:
-                    pagination_links = json.loads(pagination_links_raw)
-                except json.JSONDecodeError:
-                    pagination_links = []
-                return {
-                    "type": cache_file.suffix[1:],
-                    "content": body,
-                    "title": fm_data.get("title", ""),
-                    "url": url,
-                    "cached_at": fm_data.get("cached_at", ""),
-                    "sub_links": sub_links,
-                    "pagination_links": pagination_links,
-                }
-        except Exception:
-            continue
 
     return None
 
@@ -660,7 +607,6 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
         urls = [random.choice(urls)]
 
     sub_paths = category_info.get("sub_paths", [])
-    category_name = category_info.get("name", "")
 
     context_parts = []
 
@@ -673,7 +619,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
             try:
                 data = fetch_url(url)
                 if "error" not in data:
-                    cache_content(url, data, category_name)
+                    cache_content(url, data)
                     page_content = data
                 else:
                     print(f"  [error] Failed to fetch {url}: {data.get('error')}")
