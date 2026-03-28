@@ -1,0 +1,23 @@
+AGENTS.md
+  eb88a2a062d72027 67-68
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "d1be6929e4d252309e0ddef94172d9f40e3d9bf3",
+  "prompts": {
+    "eb88a2a062d72027": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-af6f89f9-2a82-4774-913e-c89dedec12be",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 1,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
