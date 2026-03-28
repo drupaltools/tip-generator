@@ -17,6 +17,7 @@
     "---",
     "category: {cat_name}",
     "title: [Short descriptive title]",
+    "date: [Date formatted Y-m-d]",
     "---",
     "",
     "[The tip paragraph here]",
