@@ -64,7 +64,8 @@ Categories with `urls` are automatically fetched and their content is injected i
 1. Extracts up to 20 sub-links from each URL
 2. Detects pagination patterns (`?page=N`, `/page/N`)
 3. Fetches up to 5 pagination pages
-4. Caches everything to `~/.drupaltools/tip-generator/cache/url_cache/`
+4. Caches to `~/.drupaltools/tip-generator/cache/url_cache/` with human-friendly names (e.g., `general-best-practices-1.md`)
+5. For categories with multiple URLs, picks one random URL per tip generation
 
 ## Adding a New Category
 
