@@ -304,7 +304,7 @@ def _extract_sub_links(
         url_segments = url_path.strip("/").split("/")
         base_segments = base_path.strip("/").split("/")
 
-        if len(url_segments) <= len(base_segments):
+        if len(url_segments) < len(base_segments):
             continue
 
         if full_url in seen:
