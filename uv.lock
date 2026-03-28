@@ -195,7 +195,9 @@ version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
+    { name = "html2text" },
     { name = "openai" },
+    { name = "requests" },
 ]
 
 [package.optional-dependencies]
@@ -214,9 +216,11 @@ requires-dist = [
     { name = "anthropic", specifier = ">=0.18.0" },
     { name = "flask", marker = "extra == 'test'", specifier = ">=3.0" },
     { name = "flask", marker = "extra == 'viewer'", specifier = ">=3.0" },
+    { name = "html2text", specifier = ">=2020.1.16" },
     { name = "html2text", marker = "extra == 'test'" },
     { name = "openai", specifier = ">=1.0.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=7.0" },
+    { name = "requests", specifier = ">=2.28.0" },
     { name = "requests", marker = "extra == 'test'" },
 ]
 provides-extras = ["test", "viewer"]

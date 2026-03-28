@@ -181,7 +181,7 @@ except ImportError:
 
 # Import url_cache for remote content fetching
 try:
-    from url_cache import (
+    from tip_generator.url_cache import (
         extract_urls,
         fetch_category_urls,
         fetch_all_category_data,

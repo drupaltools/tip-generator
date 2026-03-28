@@ -319,13 +319,32 @@ def fetch_url(url: str) -> Dict[str, Any]:
     return result
 
 
-def cache_content(url: str, data: Dict[str, Any]) -> Path:
+def _slugify(text: str) -> str:
+    import re
+
+    text = text.lower()
+    text = re.sub(r"[^a-z0-9]+", "-", text)
+    text = re.sub(r"^-|-$", "", text)
+    return text
+
+
+def cache_content(url: str, data: Dict[str, Any], category_name: str = "") -> Path:
     ensure_cache_dir()
 
     url_hash = get_url_hash(url)
     content_type = data.get("type", "unknown")
     extension = "json" if content_type == "json" else "md"
-    cache_file = CACHE_DIR / f"{url_hash}.{extension}"
+
+    if category_name:
+        slug = _slugify(category_name)
+        counter = 1
+        base_name = f"{slug}-{counter}"
+        while (CACHE_DIR / f"{base_name}.{extension}").exists():
+            counter += 1
+            base_name = f"{slug}-{counter}"
+        cache_file = CACHE_DIR / f"{base_name}.{extension}"
+    else:
+        cache_file = CACHE_DIR / f"{url_hash}.{extension}"
 
     cache_entry = {
         "url": url,
@@ -494,6 +513,8 @@ def _format_cached_content(url: str, cached: Dict[str, Any]) -> str:
 
 
 def build_context_for_category(category_id: int, category_info: Dict[str, Any]) -> str:
+    import random
+
     description = category_info.get("desc", "")
 
     urls = list(category_info.get("urls", [])) if "urls" in category_info else []
@@ -502,6 +523,9 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
 
     if not urls:
         return ""
+
+    if len(urls) > 1:
+        urls = [random.choice(urls)]
 
     context_parts = []
 
