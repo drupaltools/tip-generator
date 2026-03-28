@@ -116,6 +116,14 @@ def _extract_main_content(html: str) -> str:
         "contentinfo",
         "search",
     ]
+    boilerplate_ids = [
+        "nav-header",
+        "header",
+        "banner",
+    ]
+    boilerplate_selectors = [
+        '[class*="column-content-region"][class*="top-right-content"]',
+    ]
     for tag in soup.find_all(boilerplate_tags):
         tag.decompose()
     for cls in boilerplate_classes:
@@ -125,6 +133,12 @@ def _extract_main_content(html: str) -> str:
             tag.decompose()
     for role in boilerplate_roles:
         for tag in soup.find_all(attrs={"role": role}):
+            tag.decompose()
+    for bid in boilerplate_ids:
+        for tag in soup.find_all(id=bid):
+            tag.decompose()
+    for selector in boilerplate_selectors:
+        for tag in soup.select(selector):
             tag.decompose()
 
     main = soup.find("div", {"id": "main"})
