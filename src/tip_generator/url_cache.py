@@ -74,11 +74,11 @@ def fetch_wikipedia(url: str) -> tuple[str, str]:
     return None, None
 
 
-def fetch_html(url: str) -> tuple[str, str]:
+def fetch_html(url: str) -> tuple[str, str, list]:
     if "wikipedia.org" in url.lower():
         extract, title = fetch_wikipedia(url)
         if extract:
-            return extract, title
+            return extract, title, []
 
     headers = {"User-Agent": USER_AGENT}
     response = requests.get(url, headers=headers, timeout=FETCH_TIMEOUT)
@@ -91,7 +91,7 @@ def fetch_html(url: str) -> tuple[str, str]:
             r"<title[^>]*>([^<]+)</title>", text_content, re.IGNORECASE
         )
         title = title_match.group(1).strip() if title_match else ""
-        return text_content, title
+        return text_content, title, []
 
     html_content = text_content
     title_match = re.search(r"<title[^>]*>([^<]+)</title>", html_content, re.IGNORECASE)
@@ -114,7 +114,53 @@ def fetch_html(url: str) -> tuple[str, str]:
     markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
     markdown_content = clean_markdown(markdown_content)
 
-    return markdown_content.strip(), title
+    sub_links = _extract_sub_links(html_content, url, max_links=20)
+
+    return markdown_content.strip(), title, sub_links
+
+
+def _extract_sub_links(
+    html_content: str, base_url: str, max_links: int = 20
+) -> List[str]:
+    from urllib.parse import urljoin, urlparse
+
+    try:
+        base_parsed = urlparse(base_url)
+        base_origin = f"{base_parsed.scheme}://{base_parsed.netloc}"
+    except Exception:
+        return []
+
+    link_pattern = re.compile(r'<a\s+[^>]*href=["\']([^"\']+)["\']', re.IGNORECASE)
+    found = []
+    seen = set()
+
+    for match in link_pattern.finditer(html_content):
+        href = match.group(1).strip()
+        if (
+            not href
+            or href.startswith("#")
+            or href.startswith("mailto:")
+            or href.startswith("tel:")
+        ):
+            continue
+
+        full_url = urljoin(base_url, href)
+        url_parsed = urlparse(full_url)
+
+        if not url_parsed.netloc or not url_parsed.netloc.startswith(
+            base_parsed.netloc
+        ):
+            continue
+
+        if full_url in seen:
+            continue
+        seen.add(full_url)
+        found.append(full_url)
+
+        if len(found) >= max_links:
+            break
+
+    return found
 
 
 def clean_markdown(content: str) -> str:
@@ -189,11 +235,12 @@ def fetch_url(url: str) -> Dict[str, Any]:
             result["content"] = data
             result["source_url"] = source
         else:
-            markdown, title = fetch_html(url)
+            markdown, title, sub_links = fetch_html(url)
             result["type"] = "markdown"
             result["content"] = markdown
             result["title"] = title
             result["source_url"] = url
+            result["sub_links"] = sub_links
 
     except requests.RequestException as e:
         result["error"] = str(e)
@@ -361,10 +408,9 @@ def _format_cached_content(url: str, cached: Dict[str, Any]) -> str:
 def build_context_for_category(category_id: int, category_info: Dict[str, Any]) -> str:
     description = category_info.get("desc", "")
 
-    # Get URLs from both 'urls' field and description text
     urls = list(category_info.get("urls", [])) if "urls" in category_info else []
     urls.extend(extract_urls(description))
-    urls = list(set(urls))  # Deduplicate
+    urls = list(set(urls))
 
     if not urls:
         return ""
@@ -374,20 +420,43 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
     for url in urls:
         cached = get_cached_content(url)
         if cached and is_cache_valid(cached):
-            formatted = _format_cached_content(url, cached)
-            if formatted:
-                context_parts.append(formatted)
+            page_content = cached
         else:
             print(f"  [fetching] {url}")
             try:
                 data = fetch_url(url)
                 if "error" not in data:
                     cache_content(url, data)
-                    formatted = _format_cached_content(url, data)
-                    if formatted:
-                        context_parts.append(formatted)
+                    page_content = data
+                else:
+                    print(f"  [error] Failed to fetch {url}: {data.get('error')}")
+                    continue
             except Exception as e:
                 print(f"  [error] Failed to fetch {url}: {e}")
+                continue
+
+        formatted = _format_cached_content(url, page_content)
+        if formatted:
+            context_parts.append(formatted)
+
+        sub_links = page_content.get("sub_links", [])
+        for sub_url in sub_links:
+            sub_cached = get_cached_content(sub_url)
+            if sub_cached and is_cache_valid(sub_cached):
+                sub_formatted = _format_cached_content(sub_url, sub_cached)
+                if sub_formatted:
+                    context_parts.append(sub_formatted)
+            else:
+                print(f"    [sub-fetch] {sub_url}")
+                try:
+                    sub_data = fetch_url(sub_url)
+                    if "error" not in sub_data:
+                        cache_content(sub_url, sub_data)
+                        sub_formatted = _format_cached_content(sub_url, sub_data)
+                        if sub_formatted:
+                            context_parts.append(sub_formatted)
+                except Exception as e:
+                    print(f"    [sub-error] {sub_url}: {e}")
 
     if context_parts:
         return "\n\n---\n\n".join(context_parts)
