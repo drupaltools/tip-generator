@@ -601,6 +601,8 @@ def _format_cached_content(url: str, cached: Dict[str, Any]) -> str:
 def build_context_for_category(category_id: int, category_info: Dict[str, Any]) -> str:
     import random
 
+    random.seed()
+
     description = category_info.get("desc", "")
 
     urls = list(category_info.get("urls", [])) if "urls" in category_info else []
@@ -614,6 +616,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
         urls = [random.choice(urls)]
 
     sub_paths = category_info.get("sub_paths", [])
+    category_name = category_info.get("name", "")
 
     context_parts = []
 
@@ -626,7 +629,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
             try:
                 data = fetch_url(url)
                 if "error" not in data:
-                    cache_content(url, data)
+                    cache_content(url, data, category_name)
                     page_content = data
                 else:
                     print(f"  [error] Failed to fetch {url}: {data.get('error')}")
@@ -662,7 +665,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
                 try:
                     sub_data = fetch_url(sub_url)
                     if "error" not in sub_data:
-                        cache_content(sub_url, sub_data)
+                        cache_content(sub_url, sub_data, category_name)
                         sub_formatted = _format_cached_content(sub_url, sub_data)
                         if sub_formatted:
                             context_parts.append(sub_formatted)
