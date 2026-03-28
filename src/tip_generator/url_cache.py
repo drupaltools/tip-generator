@@ -333,6 +333,8 @@ def cache_content(url: str, data: Dict[str, Any]) -> Path:
         "type": content_type,
         "title": data.get("title"),
         "source_url": data.get("source_url"),
+        "sub_links": data.get("sub_links", []),
+        "pagination_links": data.get("pagination_links", []),
     }
 
     if content_type == "json":
@@ -341,12 +343,16 @@ def cache_content(url: str, data: Dict[str, Any]) -> Path:
             json.dump(cache_entry, f, indent=2, ensure_ascii=False)
     else:
         with open(cache_file, "w", encoding="utf-8") as f:
-            f.write(f"---\n")
+            f.write("---\n")
             f.write(f"url: {url}\n")
             f.write(f"cached_at: {data.get('cached_at')}\n")
             f.write(f"title: {data.get('title', '')}\n")
             f.write(f"source_url: {data.get('source_url', '')}\n")
-            f.write(f"---\n\n")
+            f.write(f"sub_links: {json.dumps(data.get('sub_links', []))}\n")
+            f.write(
+                f"pagination_links: {json.dumps(data.get('pagination_links', []))}\n"
+            )
+            f.write("---\n\n")
             f.write(data.get("content", ""))
 
     return cache_file
@@ -374,12 +380,24 @@ def get_cached_content(url: str) -> Optional[Dict[str, Any]]:
                                 if ":" in line:
                                     key, val = line.split(":", 1)
                                     fm_data[key.strip()] = val.strip()
+                            sub_links_raw = fm_data.get("sub_links", "[]")
+                            pagination_links_raw = fm_data.get("pagination_links", "[]")
+                            try:
+                                sub_links = json.loads(sub_links_raw)
+                            except json.JSONDecodeError:
+                                sub_links = []
+                            try:
+                                pagination_links = json.loads(pagination_links_raw)
+                            except json.JSONDecodeError:
+                                pagination_links = []
                             return {
                                 "type": "markdown",
                                 "content": body,
                                 "title": fm_data.get("title", ""),
                                 "url": fm_data.get("url", url),
                                 "cached_at": fm_data.get("cached_at", ""),
+                                "sub_links": sub_links,
+                                "pagination_links": pagination_links,
                             }
                     return {"type": "markdown", "content": content}
 
