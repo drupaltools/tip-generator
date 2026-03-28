@@ -587,25 +587,6 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
                 except Exception as e:
                     print(f"    [sub-error] {sub_url}: {e}")
 
-        pagination_links = page_content.get("pagination_links", [])
-        for page_url in pagination_links:
-            page_cached = get_cached_content(page_url)
-            if page_cached and is_cache_valid(page_cached):
-                page_formatted = _format_cached_content(page_url, page_cached)
-                if page_formatted:
-                    context_parts.append(page_formatted)
-            else:
-                print(f"  [page] {page_url}")
-                try:
-                    page_data = fetch_url(page_url)
-                    if "error" not in page_data:
-                        cache_content(page_url, page_data)
-                        page_formatted = _format_cached_content(page_url, page_data)
-                        if page_formatted:
-                            context_parts.append(page_formatted)
-                except Exception as e:
-                    print(f"  [page-error] {page_url}: {e}")
-
     if context_parts:
         return "\n\n---\n\n".join(context_parts)
 
