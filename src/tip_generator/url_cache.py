@@ -180,6 +180,10 @@ def _extract_sub_links(
     except Exception:
         return [], []
 
+    base_path = base_parsed.path.rstrip("/")
+    if not base_path:
+        base_path = "/"
+
     link_pattern = re.compile(r'<a\s+[^>]*href=["\']([^"\']+)["\']', re.IGNORECASE)
     pagination_patterns = [
         r"[?&](page|p|offset)=\d+",
@@ -219,6 +223,13 @@ def _extract_sub_links(
             if full_url not in seen_pagination and len(pagination_links) < max_pages:
                 pagination_links.append(full_url)
                 seen_pagination.add(full_url)
+            continue
+
+        url_path = url_parsed.path.rstrip("/")
+        if not url_path:
+            url_path = "/"
+
+        if not url_path.startswith(base_path):
             continue
 
         if full_url in seen:
