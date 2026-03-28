@@ -95,7 +95,7 @@ def _extract_main_content(html: str) -> str:
         if element:
             return str(element)
 
-    boilerplate_tags = ["nav", "header", "footer", "aside"]
+    boilerplate_tags = ["nav", "header", "footer", "aside", "form"]
     boilerplate_classes = ["nav", "menu", "sidebar", "navigation", "header", "footer"]
     for tag in soup.find_all(boilerplate_tags):
         tag.decompose()
