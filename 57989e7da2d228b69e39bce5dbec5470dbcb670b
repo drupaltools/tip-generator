@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "57989e7da2d228b69e39bce5dbec5470dbcb670b",
+  "prompts": {
+    "c1b6dbc95a11517f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-1969b2c0-4046-4f1e-b0b1-80135cf6e1a7",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 19,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
