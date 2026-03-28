@@ -131,7 +131,11 @@ def _extract_main_content(html: str) -> str:
     if main:
         return str(main)
 
-    return html
+    body = soup.find("body")
+    if body:
+        return str(body)
+
+    return str(soup)
 
 
 def fetch_html(url: str) -> tuple[str, str, list, list]:
