@@ -306,6 +306,98 @@ generated: {datetime.now().isoformat()}
     return file_path
 
 
+# ============ BATCH REGISTRY ============
+
+BATCH_REGISTRY_FILE = DATA_DIR / "batches.json"
+
+
+def load_batch_registry() -> Dict[str, Any]:
+    """Load the batch registry from disk."""
+    if not BATCH_REGISTRY_FILE.exists():
+        return {"batches": {}}
+    try:
+        with open(BATCH_REGISTRY_FILE) as f:
+            return json.load(f)
+    except (json.JSONDecodeError, IOError):
+        return {"batches": {}}
+
+
+def save_batch_registry(registry: Dict[str, Any]) -> None:
+    """Save the batch registry to disk."""
+    with open(BATCH_REGISTRY_FILE, "w") as f:
+        json.dump(registry, f, indent=2)
+
+
+def register_batch(
+    batch_id: str,
+    provider: str,
+    categories: List[int],
+    count: int,
+    model: Optional[str] = None,
+    api_url: Optional[str] = None,
+) -> None:
+    """Register a new batch in the registry."""
+    registry = load_batch_registry()
+    registry["batches"][batch_id] = {
+        "batch_id": batch_id,
+        "provider": provider,
+        "categories": categories,
+        "count": count,
+        "model": model,
+        "api_url": api_url,
+        "status": "pending",
+        "created_at": datetime.now().isoformat(),
+        "completed_at": None,
+        "results_count": 0,
+        "errors_count": 0,
+    }
+    save_batch_registry(registry)
+    print(f"Batch registered: {batch_id}")
+
+
+def update_batch_status(
+    batch_id: str,
+    status: str,
+    results_count: int = 0,
+    errors_count: int = 0,
+) -> None:
+    """Update batch status in the registry."""
+    registry = load_batch_registry()
+    if batch_id in registry["batches"]:
+        registry["batches"][batch_id]["status"] = status
+        registry["batches"][batch_id]["results_count"] = results_count
+        registry["batches"][batch_id]["errors_count"] = errors_count
+        if status in ("completed", "failed", "expired"):
+            registry["batches"][batch_id]["completed_at"] = datetime.now().isoformat()
+        save_batch_registry(registry)
+
+
+def remove_batch(batch_id: str) -> bool:
+    """Remove a batch from the registry. Returns True if removed."""
+    registry = load_batch_registry()
+    if batch_id in registry["batches"]:
+        del registry["batches"][batch_id]
+        save_batch_registry(registry)
+        return True
+    return False
+
+
+def list_pending_batches() -> List[Dict[str, Any]]:
+    """List all pending/in-progress batches."""
+    registry = load_batch_registry()
+    pending = []
+    for batch_id, info in registry["batches"].items():
+        if info["status"] in ("pending", "in_progress"):
+            pending.append(info)
+    return pending
+
+
+def list_all_batches() -> List[Dict[str, Any]]:
+    """List all batches in the registry."""
+    registry = load_batch_registry()
+    return list(registry["batches"].values())
+
+
 # ============ BATCH API FUNCTIONS ============
 
 
@@ -865,6 +957,12 @@ def generate_batch(
         )
 
         if not wait:
+            register_batch(
+                batch_id, provider, categories, count, model, effective_api_url
+            )
+            print(
+                f"Use 'drupaltools-tip-generator --download-batch {batch_id} -p {provider}' to download results when ready"
+            )
             return 0
 
         # Poll for completion
@@ -944,26 +1042,51 @@ def check_batch_status(
     api_key: str,
     save: bool = False,
     tips_dir: Optional[Path] = None,
-) -> None:
+    update_registry: bool = True,
+    remove_on_complete: bool = False,
+) -> dict:
     print(f"Checking batch {batch_id}...")
 
-    try:
-        if provider == "anthropic":
-            result = anthropic_batch_check(batch_id, api_key)
-        elif provider == "openrouter":
-            result = openrouter_batch_check(batch_id, api_key)
-        else:
-            result = openai_batch_check(batch_id, api_key)
+    result = {
+        "batch_id": batch_id,
+        "status": "unknown",
+        "complete": False,
+        "results_count": 0,
+        "errors_count": 0,
+        "saved_count": 0,
+    }
 
-        print(f"Status: {result['status']}")
-        print(f"Complete: {result['complete']}")
-        print(f"Results: {len(result['results'])}")
+    try:
+        api_url = get_default_api_url(provider)
+        if provider == "anthropic":
+            check_result = anthropic_batch_check(batch_id, api_key, api_url)
+        elif provider == "openrouter":
+            check_result = openrouter_batch_check(batch_id, api_key, api_url)
+        else:
+            check_result = openai_batch_check(batch_id, api_key, api_url)
+
+        print(f"Status: {check_result['status']}")
+        print(f"Complete: {check_result['complete']}")
+        print(f"Results: {len(check_result['results'])}")
+
+        result["status"] = check_result["status"]
+        result["complete"] = check_result["complete"]
+        result["results_count"] = len(check_result["results"])
+        result["errors_count"] = len(check_result.get("errors", []))
+
+        if update_registry:
+            update_batch_status(
+                batch_id,
+                check_result["status"],
+                result["results_count"],
+                result["errors_count"],
+            )
 
         target_dir = tips_dir or get_default_generate_dir()
 
-        if result["complete"] and save and result["results"]:
+        if check_result["complete"] and save and check_result["results"]:
             print("\nSaving results...")
-            for res in result["results"]:
+            for res in check_result["results"]:
                 custom_id = res["custom_id"]
                 cat_name = custom_id.rsplit("_", 1)[0]
                 cat_info = next(
@@ -974,11 +1097,91 @@ def check_batch_status(
                     file_path = save_tip(cat_info, res.get("content"), target_dir)
                     if file_path:
                         print(f"  Saved: {file_path.relative_to(DATA_DIR)}")
+                        result["saved_count"] += 1
                     else:
                         print(f"  SKIPPED: Empty content for {custom_id}")
 
+            if remove_on_complete:
+                remove_batch(batch_id)
+                print("Batch removed from registry after successful save.")
+
     except Exception as e:
         print(f"Error: {e}")
+        result["error"] = str(e)
+
+    return result
+
+
+def download_batch(
+    batch_id: str,
+    provider: str,
+    api_key: str,
+    tips_dir: Optional[Path] = None,
+    remove_after: bool = True,
+) -> dict:
+    return check_batch_status(
+        batch_id,
+        provider,
+        api_key,
+        save=True,
+        tips_dir=tips_dir,
+        update_registry=True,
+        remove_on_complete=remove_after,
+    )
+
+
+def process_pending_batches(
+    provider: str,
+    api_key: str,
+    tips_dir: Optional[Path] = None,
+    remove_after: bool = True,
+    poll_wait: int = 10,
+) -> dict:
+    pending = list_pending_batches()
+
+    if not pending:
+        print("No pending batches found.")
+        return {"checked": 0, "completed": 0, "saved": 0}
+
+    print(f"Found {len(pending)} pending batch(es)\n")
+
+    summary = {"checked": 0, "completed": 0, "saved": 0}
+
+    for batch_info in pending:
+        batch_id = batch_info["batch_id"]
+        batch_provider = batch_info.get("provider", provider)
+
+        print(f"\n{'=' * 50}")
+        print(f"Processing batch: {batch_id}")
+        print(f"Provider: {batch_provider}")
+        print(f"Created: {batch_info.get('created_at', 'unknown')}")
+
+        result = download_batch(
+            batch_id,
+            batch_provider,
+            api_key,
+            tips_dir=tips_dir,
+            remove_after=remove_after,
+        )
+
+        summary["checked"] += 1
+        if result["complete"]:
+            summary["completed"] += 1
+            summary["saved"] += result["saved_count"]
+
+            if result["status"] in ("failed", "expired"):
+                print(
+                    f"Batch {result['status']}: {result.get('error', 'Unknown error')}"
+                )
+
+    print(f"\n{'=' * 50}")
+    print("SUMMARY")
+    print(f"{'=' * 50}")
+    print(f"Batches checked: {summary['checked']}")
+    print(f"Batches completed: {summary['completed']}")
+    print(f"Tips saved: {summary['saved']}")
+
+    return summary
 
 
 def list_categories():
@@ -1527,12 +1730,36 @@ def main():
 
     # Mutually exclusive group for main operations
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--category", "-c", type=str, help="Category number(s), slug name(s), or 'all'")
+    group.add_argument(
+        "--category", "-c", type=str, help="Category number(s), slug name(s), or 'all'"
+    )
     group.add_argument(
         "--list-categories", action="store_true", help="List all categories"
     )
     group.add_argument(
         "--check-batch", type=str, metavar="BATCH_ID", help="Check batch status"
+    )
+    group.add_argument(
+        "--download-batch",
+        type=str,
+        metavar="BATCH_ID",
+        help="Download batch results and save tips",
+    )
+    group.add_argument(
+        "--process-pending",
+        action="store_true",
+        help="Check all pending batches and download results when ready",
+    )
+    group.add_argument(
+        "--list-batches",
+        action="store_true",
+        help="List all registered batches and their status",
+    )
+    group.add_argument(
+        "--remove-batch",
+        type=str,
+        metavar="BATCH_ID",
+        help="Remove a batch from the registry",
     )
     group.add_argument(
         "--random-tip",
@@ -1740,6 +1967,79 @@ def main():
         check_batch_status(args.check_batch, args.provider, api_key, args.save_results)
         return
 
+    if args.download_batch:
+        if not args.provider:
+            print("Error: --provider is required for --download-batch")
+            return
+
+        api_key = args.api_key or get_env(f"{args.provider.upper()}_API_KEY")
+        if not api_key:
+            print(
+                f"Error: No API key. Set {args.provider.upper()}_API_KEY in .env or use --api-key"
+            )
+            return
+
+        result = download_batch(
+            args.download_batch, args.provider, api_key, args.tips_dir
+        )
+        if result.get("saved_count"):
+            print(f"\nSaved {result['saved_count']} tips")
+        return
+
+    if args.process_pending:
+        if not args.provider:
+            print("Error: --provider is required for --process-pending")
+            return
+
+        api_key = args.api_key or get_env(f"{args.provider.upper()}_API_KEY")
+        if not api_key:
+            print(
+                f"Error: No API key. Set {args.provider.upper()}_API_KEY in .env or use --api-key"
+            )
+            return
+
+        process_pending_batches(args.provider, api_key, args.tips_dir)
+        return
+
+    if args.list_batches:
+        batches = list_all_batches()
+        if not batches:
+            print("No batches in registry.")
+            return
+
+        print(f"Registered batches ({len(batches)}):\n")
+        for b in sorted(batches, key=lambda x: x.get("created_at", ""), reverse=True):
+            status = b.get("status", "unknown")
+            status_icon = {
+                "pending": "⏳",
+                "in_progress": "🔄",
+                "completed": "✅",
+                "failed": "❌",
+                "expired": "⏰",
+            }.get(status, "❓")
+            print(f"{status_icon} {b['batch_id']}")
+            print(f"   Provider: {b.get('provider', 'unknown')}")
+            print(f"   Status: {status}")
+            print(f"   Created: {b.get('created_at', 'unknown')}")
+            if b.get("completed_at"):
+                print(f"   Completed: {b['completed_at']}")
+            print(
+                f"   Categories: {b.get('categories', [])} x {b.get('count', 0)} tips"
+            )
+            if b.get("results_count"):
+                print(f"   Results: {b['results_count']}")
+            if b.get("errors_count"):
+                print(f"   Errors: {b['errors_count']}")
+            print()
+        return
+
+    if args.remove_batch:
+        if remove_batch(args.remove_batch):
+            print(f"Removed batch {args.remove_batch} from registry")
+        else:
+            print(f"Batch {args.remove_batch} not found in registry")
+        return
+
     # Parse categories
     if args.category.lower() == "all":
         categories = list(CATEGORIES.keys())
@@ -1755,7 +2055,9 @@ def main():
                 if slug in slug_to_id:
                     categories.append(slug_to_id[slug])
                 else:
-                    print(f"Error: Unknown category '{slug}'. Use numbers, slugs, or 'all'")
+                    print(
+                        f"Error: Unknown category '{slug}'. Use numbers, slugs, or 'all'"
+                    )
                     return
 
     if not args.provider:

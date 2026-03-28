@@ -20,11 +20,11 @@ drupaltools-tip-generator -c 35 -n 5 -p openai
 
 ```bash
 # Install for OpenCode
-npx skills add drupaltools/tip-generator --agent opencode
+npx skills add drupaltools/tip-generator
 
 # Or install via shskills
 pip install shskills
-shskills install --url https://github.com/drupaltools/tip-generator --agent opencode
+shskills install --url https://github.com/drupaltools/tip-generator
 ```
 
 ### Option 3: Clone and run from source
@@ -113,7 +113,7 @@ drupaltools-tip-generator -c 35 -n 5 -p openrouter
 | `-t, --max-tokens` | Maximum tokens for response (default: 4096) |
 | `--tips-dir` | Custom tips directory (overrides `TIPGEN_TIPS_DIR` env var) |
 | `--save-truncated` | Save tips even if truncated (use with caution) |
-| `--no-wait` | Don't wait for batch completion |
+| `--no-wait` | Don't wait for batch completion (batch is auto-registered) |
 | `--dry-run` | Show what would be done without calling API |
 | `--list-categories` | List all available categories |
 | `--random-tip` | Get a random existing tip (fast, no API) |
@@ -123,6 +123,10 @@ drupaltools-tip-generator -c 35 -n 5 -p openrouter
 | `--validate-file` | Validate a specific tip file |
 | `--validate-category` | Validate all tips in a category |
 | `--validate-all` | Validate all tips across all categories |
+| `--download-batch` | Download results for a registered batch and save tips |
+| `--process-pending` | Check all pending batches and download completed results |
+| `--list-batches` | List all registered batches and their status |
+| `--remove-batch` | Remove a batch from the registry |
 
 ### Examples
 
@@ -161,13 +165,58 @@ drupaltools-tip-generator -c 35 -n 5 -p openai --save-truncated
 | OpenAI | Yes | 50% | Results within 24h |
 | OpenRouter | ⚠️ Sync only | - | Batch API not supported |
 
-## Check Batch Status
+## Batch Management
 
-If you ran batch mode with `--no-wait`:
+When you use `--no-wait` with batch generation, the batch is automatically registered and tracked. This allows you to download results hours later without manually tracking batch IDs.
+
+### List Registered Batches
+
+```bash
+drupaltools-tip-generator --list-batches
+```
+
+Shows all batches with their status:
+```
+✅ batch_abc123 - completed
+⏳ batch_def456 - pending
+❌ batch_ghi789 - failed
+```
+
+### Download Batch Results
+
+Download results for a specific batch and save the tips:
+
+```bash
+drupaltools-tip-generator --download-batch BATCH_ID -p openai
+```
+
+The batch is automatically removed from the registry after successful download.
+
+### Process All Pending Batches
+
+Check all pending batches and download results for any that are complete:
+
+```bash
+drupaltools-tip-generator --process-pending -p openai
+```
+
+This is ideal for scheduled runs (e.g., cron job) to process batches that completed overnight.
+
+### Check Batch Status (Manual)
+
+Check status without downloading:
 
 ```bash
 drupaltools-tip-generator --check-batch BATCH_ID -p anthropic
 drupaltools-tip-generator --check-batch BATCH_ID -p openai --save-results
+```
+
+### Remove Batch from Registry
+
+Remove a batch without downloading results:
+
+```bash
+drupaltools-tip-generator --remove-batch BATCH_ID
 ```
 
 ## Output
@@ -178,6 +227,7 @@ Tips are saved to `~/.drupaltools/tip-generator/tips/{category-name}/{uuid}.md` 
 ~/.drupaltools/tip-generator/
 ├── config.json
 ├── .env
+├── batches.json        # Batch registry (auto-created)
 ├── cache/
 │   └── url_cache/
 └── tips/
