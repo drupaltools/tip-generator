@@ -232,6 +232,9 @@ def _extract_sub_links(
         if not url_path.startswith(base_path):
             continue
 
+        if url_parsed.query:
+            continue
+
         if full_url in seen:
             continue
         seen.add(full_url)
