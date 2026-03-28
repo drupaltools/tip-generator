@@ -55,7 +55,7 @@
     "24": {"name": "call-to-action", "desc": "Call to action for Drupal.org"},
     "25": {"name": "ascii-banner", "desc": "Drupal terminal ASCII banner"},
     "26": {"name": "wikipedia-fact", "desc": "Drupal fact from Wikipedia", "urls": ["https://en.wikipedia.org/wiki/Drupal"]},
-    "27": {"name": "case-study", "desc": "Nice Drupal showcase/case study from the list here. Do not return any code", "urls": ["https://new.drupal.org/case-studies"]},
+    "27": {"name": "case-study", "desc": "Nice Drupal showcase/case study from the list here. Do not return any code", "urls": ["https://new.drupal.org/case-studies"], "sub_paths": ["/case-study/"]},
     "28": {"name": "drupal-hook", "desc": "Interesting Drupal 10+ hook from API"},
     "29": {"name": "poem", "desc": "Short poem for Drupal CMS"},
     "30": {"name": "rephrased-quote", "desc": "Famous quote rephrased for Drupal"},

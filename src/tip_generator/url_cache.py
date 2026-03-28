@@ -547,6 +547,8 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
     if len(urls) > 1:
         urls = [random.choice(urls)]
 
+    sub_paths = category_info.get("sub_paths", [])
+
     context_parts = []
 
     for url in urls:
@@ -572,6 +574,10 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
             context_parts.append(formatted)
 
         sub_links = page_content.get("sub_links", [])
+        if sub_paths:
+            sub_links = [
+                u for u in sub_links if any(u.startswith(sp) for sp in sub_paths)
+            ]
         for sub_url in sub_links:
             sub_cached = get_cached_content(sub_url)
             if sub_cached and is_cache_valid(sub_cached):
