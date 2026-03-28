@@ -341,6 +341,23 @@ def fetch_all_category_data(force: bool = False) -> Dict[int, List[Path]]:
     return results
 
 
+def _format_cached_content(url: str, cached: Dict[str, Any]) -> str:
+    if cached.get("type") == "json":
+        data = cached.get("data", {})
+        if isinstance(data, list) and len(data) > 0:
+            sample = data[:10]
+            return f"Data from {url}:\n```json\n{json.dumps(sample, indent=2)}\n```"
+        elif isinstance(data, dict):
+            return f"Data from {url}:\n```json\n{json.dumps(data, indent=2)}\n```"
+    else:
+        title = cached.get("title", "Untitled")
+        content = cached.get("content", "")
+        if len(content) > 10000:
+            content = content[:10000] + "\n\n[... content truncated ...]"
+        return f"Reference from {url} ({title}):\n\n{content}"
+    return ""
+
+
 def build_context_for_category(category_id: int, category_info: Dict[str, Any]) -> str:
     description = category_info.get("desc", "")
 
@@ -357,24 +374,20 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
     for url in urls:
         cached = get_cached_content(url)
         if cached and is_cache_valid(cached):
-            if cached.get("type") == "json":
-                data = cached.get("data", {})
-                if isinstance(data, list) and len(data) > 0:
-                    sample = data[:10]
-                    context_parts.append(
-                        f"Data from {url}:\n```json\n{json.dumps(sample, indent=2)}\n```"
-                    )
-                elif isinstance(data, dict):
-                    context_parts.append(
-                        f"Data from {url}:\n```json\n{json.dumps(data, indent=2)}\n```"
-                    )
-            else:
-                title = cached.get("title", "Untitled")
-                content = cached.get("content", "")
-                # Use 10000 char limit to give AI enough context
-                if len(content) > 10000:
-                    content = content[:10000] + "\n\n[... content truncated ...]"
-                context_parts.append(f"Reference from {url} ({title}):\n\n{content}")
+            formatted = _format_cached_content(url, cached)
+            if formatted:
+                context_parts.append(formatted)
+        else:
+            print(f"  [fetching] {url}")
+            try:
+                data = fetch_url(url)
+                if "error" not in data:
+                    cache_content(url, data)
+                    formatted = _format_cached_content(url, data)
+                    if formatted:
+                        context_parts.append(formatted)
+            except Exception as e:
+                print(f"  [error] Failed to fetch {url}: {e}")
 
     if context_parts:
         return "\n\n---\n\n".join(context_parts)
