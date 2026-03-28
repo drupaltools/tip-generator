@@ -301,10 +301,7 @@ def _extract_sub_links(
         if url_parsed.query:
             continue
 
-        url_segments = url_path.strip("/").split("/")
-        base_segments = base_path.strip("/").split("/")
-
-        if len(url_segments) < len(base_segments):
+        if not url_path.startswith(base_path + "/"):
             continue
 
         if full_url in seen:
