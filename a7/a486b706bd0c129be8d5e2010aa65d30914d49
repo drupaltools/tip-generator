@@ -1,0 +1,65 @@
+src/tip_generator/url_cache.py
+  bdf5b76b57e01620 576,601
+  85c60f03573d9648 435-439
+  36e8eda648b53bae 476-518,520,523
+  b286a3a041dc021f 652,677,713
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "a7a486b706bd0c129be8d5e2010aa65d30914d49",
+  "prompts": {
+    "36e8eda648b53bae": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-c719cb68-81d0-46d2-a320-a47829ba956c",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 45,
+      "total_deletions": 4,
+      "accepted_lines": 45,
+      "overriden_lines": 0
+    },
+    "85c60f03573d9648": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-bd8384a7-5bc3-428a-aa44-fad46d4c4910",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 5,
+      "total_deletions": 1,
+      "accepted_lines": 5,
+      "overriden_lines": 0
+    },
+    "b286a3a041dc021f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-2a76d4a3-76ae-4444-a48a-fb9dbdbc896b",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 3,
+      "total_deletions": 2,
+      "accepted_lines": 3,
+      "overriden_lines": 0
+    },
+    "bdf5b76b57e01620": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-be77cf7f-346a-4249-9bfc-dfc99991819d",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 4,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
