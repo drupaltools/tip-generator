@@ -229,13 +229,16 @@ def _extract_sub_links(
         if not url_path:
             url_path = "/"
 
-        if not url_path.startswith(base_path):
-            continue
-
         if url_path == base_path:
             continue
 
         if url_parsed.query:
+            continue
+
+        url_segments = url_path.strip("/").split("/")
+        base_segments = base_path.strip("/").split("/")
+
+        if len(url_segments) <= len(base_segments):
             continue
 
         if full_url in seen:
