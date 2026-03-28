@@ -74,6 +74,44 @@ def fetch_wikipedia(url: str) -> tuple[str, str]:
     return None, None
 
 
+def _extract_main_content(html: str) -> str:
+    try:
+        from bs4 import BeautifulSoup
+    except ImportError:
+        return html
+
+    soup = BeautifulSoup(html, "html.parser")
+
+    selectors = [
+        "article",
+        "main",
+        '[role="main"]',
+        "#content",
+        ".region-content",
+        "#block-system-main",
+    ]
+    for selector in selectors:
+        element = soup.select_one(selector)
+        if element:
+            return str(element)
+
+    boilerplate_tags = ["nav", "header", "footer", "aside"]
+    boilerplate_classes = ["nav", "menu", "sidebar", "navigation", "header", "footer"]
+    for tag in soup.find_all(boilerplate_tags):
+        tag.decompose()
+    for cls in boilerplate_classes:
+        for tag in soup.find_all(
+            class_=lambda x: x and cls in x if isinstance(x, list) else x == cls
+        ):
+            tag.decompose()
+
+    main = soup.find("div", {"id": "main"})
+    if main:
+        return str(main)
+
+    return html
+
+
 def fetch_html(url: str) -> tuple[str, str, list, list]:
     if "wikipedia.org" in url.lower():
         extract, title = fetch_wikipedia(url)
@@ -109,6 +147,8 @@ def fetch_html(url: str) -> tuple[str, str, list, list]:
     html_content = re.sub(
         r"<style[^>]*>.*?</style>", "", html_content, flags=re.DOTALL | re.IGNORECASE
     )
+
+    html_content = _extract_main_content(html_content)
 
     markdown_content = h.handle(html_content)
     markdown_content = re.sub(r"\n{3,}", "\n\n", markdown_content)
