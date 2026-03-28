@@ -1,0 +1,23 @@
+release.sh
+  2bfa7549526ae6e3 4-13,17-18,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "b1651aa1d453db60823dfc1255e309021d037cdb",
+  "prompts": {
+    "2bfa7549526ae6e3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-39db62f9-3589-46d0-9170-4ac72dfea542",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 13,
+      "total_deletions": 10,
+      "accepted_lines": 13,
+      "overriden_lines": 0
+    }
+  }
+}
