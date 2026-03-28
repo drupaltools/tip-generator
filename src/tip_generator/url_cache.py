@@ -97,12 +97,22 @@ def _extract_main_content(html: str) -> str:
 
     boilerplate_tags = ["nav", "header", "footer", "aside", "form"]
     boilerplate_classes = ["nav", "menu", "sidebar", "navigation", "header", "footer"]
+    boilerplate_roles = [
+        "complementary",
+        "banner",
+        "navigation",
+        "contentinfo",
+        "search",
+    ]
     for tag in soup.find_all(boilerplate_tags):
         tag.decompose()
     for cls in boilerplate_classes:
         for tag in soup.find_all(
             class_=lambda x: x and cls in x if isinstance(x, list) else x == cls
         ):
+            tag.decompose()
+    for role in boilerplate_roles:
+        for tag in soup.find_all(attrs={"role": role}):
             tag.decompose()
 
     main = soup.find("div", {"id": "main"})
