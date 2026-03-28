@@ -1,0 +1,36 @@
+src/tip_generator/url_cache.py
+  0e2b13a09da453fa 304
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.22",
+  "base_commit_sha": "61f4f3da5509b8ae2dc3c6c23742fb169495760f",
+  "prompts": {
+    "0e2b13a09da453fa": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-03d5b5c5-f963-4ed7-a52d-d984ff702cfb",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 4,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    },
+    "e1ddf59278879b5b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-ce32346b-c427-44f0-ae29-2d4d72744fb0",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 4,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
