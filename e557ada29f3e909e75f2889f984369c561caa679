@@ -1,0 +1,23 @@
+src/tip_generator/url_cache.py
+  20b2a0f2f3331923 183-186,228-232
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "e557ada29f3e909e75f2889f984369c561caa679",
+  "prompts": {
+    "20b2a0f2f3331923": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-0d0244a9-8223-4e8f-aa3d-b392dae8c6bd",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 11,
+      "total_deletions": 0,
+      "accepted_lines": 11,
+      "overriden_lines": 0
+    }
+  }
+}
