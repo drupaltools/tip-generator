@@ -655,7 +655,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
                 try:
                     sub_data = fetch_url(sub_url)
                     if "error" not in sub_data:
-                        cache_content(sub_url, sub_data, category_name)
+                        cache_content(sub_url, sub_data)
                         sub_formatted = _format_cached_content(sub_url, sub_data)
                         if sub_formatted:
                             context_parts.append(sub_formatted)
