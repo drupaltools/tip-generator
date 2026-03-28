@@ -432,7 +432,11 @@ def cache_content(url: str, data: Dict[str, Any], category_name: str = "") -> Pa
     content_type = data.get("type", "unknown")
     extension = "json" if content_type == "json" else "md"
 
-    cache_file = CACHE_DIR / f"{url_hash}.{extension}"
+    if category_name:
+        slug = _slugify(category_name)
+        cache_file = CACHE_DIR / f"{slug}-{url_hash}.{extension}"
+    else:
+        cache_file = CACHE_DIR / f"{url_hash}.{extension}"
 
     cache_entry = {
         "url": url,
@@ -469,13 +473,54 @@ def get_cached_content(url: str) -> Optional[Dict[str, Any]]:
     url_hash = get_url_hash(url)
 
     for ext in ["md", "json"]:
-        cache_file = CACHE_DIR / f"{url_hash}.{ext}"
-        if cache_file.exists():
+        for cache_file in CACHE_DIR.glob(f"*-{url_hash}.{ext}"):
+            if cache_file.exists():
+                if ext == "json":
+                    with open(cache_file, "r", encoding="utf-8") as f:
+                        return json.load(f)
+                else:
+                    with open(cache_file, "r", encoding="utf-8") as f:
+                        content = f.read()
+                        if content.startswith("---"):
+                            parts = content.split("---", 2)
+                            if len(parts) >= 3:
+                                fm_text = parts[1]
+                                body = parts[2].strip()
+                                fm_data = {}
+                                for line in fm_text.strip().split("\n"):
+                                    if ":" in line:
+                                        key, val = line.split(":", 1)
+                                        fm_data[key.strip()] = val.strip()
+                                sub_links_raw = fm_data.get("sub_links", "[]")
+                                pagination_links_raw = fm_data.get(
+                                    "pagination_links", "[]"
+                                )
+                                try:
+                                    sub_links = json.loads(sub_links_raw)
+                                except json.JSONDecodeError:
+                                    sub_links = []
+                                try:
+                                    pagination_links = json.loads(pagination_links_raw)
+                                except json.JSONDecodeError:
+                                    pagination_links = []
+                                return {
+                                    "type": "markdown",
+                                    "content": body,
+                                    "title": fm_data.get("title", ""),
+                                    "url": fm_data.get("url", url),
+                                    "cached_at": fm_data.get("cached_at", ""),
+                                    "sub_links": sub_links,
+                                    "pagination_links": pagination_links,
+                                }
+                        return {"type": "markdown", "content": content}
+
+        old_cache_file = CACHE_DIR / f"{url_hash}.{ext}"
+        if old_cache_file.exists():
             if ext == "json":
-                with open(cache_file, "r", encoding="utf-8") as f:
+                with open(old_cache_file, "r", encoding="utf-8") as f:
                     return json.load(f)
             else:
-                with open(cache_file, "r", encoding="utf-8") as f:
+                with open(old_cache_file, "r", encoding="utf-8") as f:
                     content = f.read()
                     if content.startswith("---"):
                         parts = content.split("---", 2)
@@ -528,6 +573,7 @@ def fetch_category_urls(
     category_id: int, category_info: Dict[str, Any], force: bool = False
 ) -> List[Path]:
     description = category_info.get("desc", "")
+    category_name = category_info.get("name", "")
 
     # Get URLs from both 'urls' field and description text
     urls = list(category_info.get("urls", [])) if "urls" in category_info else []
@@ -547,15 +593,12 @@ def fetch_category_urls(
 
         if cached and not force and is_cache_valid(cached):
             print(f"  [cached] {url}")
-            url_hash = get_url_hash(url)
-            ext = "json" if cached.get("type") == "json" else "md"
-            cached_files.append(CACHE_DIR / f"{url_hash}.{ext}")
         else:
             print(f"  [fetching] {url}")
             try:
                 data = fetch_url(url)
                 if data.get("type") != "error":
-                    cache_file = cache_content(url, data)
+                    cache_file = cache_content(url, data, category_name)
                     cached_files.append(cache_file)
                     print(f"    -> saved to {cache_file.name}")
                 else:
@@ -606,6 +649,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
     random.seed()
 
     description = category_info.get("desc", "")
+    category_name = category_info.get("name", "")
 
     urls = list(category_info.get("urls", [])) if "urls" in category_info else []
     urls.extend(extract_urls(description))
@@ -630,7 +674,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
             try:
                 data = fetch_url(url)
                 if "error" not in data:
-                    cache_content(url, data)
+                    cache_content(url, data, category_name)
                     page_content = data
                 else:
                     print(f"  [error] Failed to fetch {url}: {data.get('error')}")
@@ -666,7 +710,7 @@ def build_context_for_category(category_id: int, category_info: Dict[str, Any]) 
                 try:
                     sub_data = fetch_url(sub_url)
                     if "error" not in sub_data:
-                        cache_content(sub_url, sub_data)
+                        cache_content(sub_url, sub_data, category_name)
                         sub_formatted = _format_cached_content(sub_url, sub_data)
                         if sub_formatted:
                             context_parts.append(sub_formatted)
