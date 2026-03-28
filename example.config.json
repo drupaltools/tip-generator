@@ -1,10 +1,33 @@
 {
-  "prompt_template": "Generate a Drupal tip for category #{cat_id}: {cat_desc}\n\nRequirements:\n- One paragraph maximum (2-4 sentences)\n- Factual, specific, and useful for an experienced Drupal developer\n- No padding or filler\n- Prefer Drupal 11 / PHP 8.4+ idioms for code examples\n- If the tip involves code, include it in a code block with appropriate syntax highlighting (php, bash, sql, yaml, twig, json, etc. based on context)\n\nOutput format:\n---\ncategory: {cat_name}\ntitle: [Short descriptive title]\n---\n\n[The tip paragraph here]\n\n```\n[Code example if relevant - choose appropriate language: php/bash/sql/yaml/twig/json]\n```\n\nGenerate ONE tip now.",
+  "prompt_template": [
+    "Generate a Drupal tip for category #{cat_id}: {cat_desc}",
+    "",
+    "Requirements:",
+    "- One paragraph maximum (2-4 sentences)",
+    "- Factual, specific, and useful for an experienced Drupal developer",
+    "- No padding or filler",
+    "- Prefer Drupal 11 / PHP 8.4+ idioms for code examples",
+    "- If the tip involves code, include it in a code block with appropriate syntax highlighting",
+    "",
+    "Output format:",
+    "---",
+    "category: {cat_name}",
+    "title: [Short descriptive title]",
+    "---",
+    "",
+    "[The tip paragraph here]",
+    "",
+    "```",
+    "[Code example if relevant]",
+    "```",
+    "",
+    "Generate ONE tip now."
+  ],
   "categories": {
-    "categories": {
-      "1": {"name": "proposed-new-module", "desc": "Proposed new module on drupal.org"},
-      "35": {"name": "core-service", "desc": "Lesser-known core service"},
-      "82": {"name": "drupal-11-features", "desc": "New features in Drupal 11"}
-    }
+    "1": {"name": "proposed-new-module", "desc": "Proposed new module on drupal.org"},
+    "2": {"name": "drupal-history", "desc": "Drupal history or very old versions"},
+    "35": {"name": "core-service", "desc": "Lesser-known core service"},
+    "42": {"name": "cache-api", "desc": "Cache API nuance with example"},
+    "82": {"name": "drupal-11-features", "desc": "New features in Drupal 11"}
   }
 }
