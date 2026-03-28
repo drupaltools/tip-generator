@@ -1,0 +1,23 @@
+pyproject.toml
+  e967f6085dbb90c0 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.20",
+  "base_commit_sha": "b47af4708090745a35052c4561cd82b3bfbfe121",
+  "prompts": {
+    "e967f6085dbb90c0": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "opencode-transcript-ses_2cbdc12cbffeHTdAwCsEtjQYhq-93e8066d-f004-4760-b811-4cdf0e2518d3",
+        "model": "unknown"
+      },
+      "human_author": "Theodoros Ploumis <me@theodorosploumis.com>",
+      "messages": [],
+      "total_additions": 1,
+      "total_deletions": 1,
+      "accepted_lines": 1,
+      "overriden_lines": 0
+    }
+  }
+}
